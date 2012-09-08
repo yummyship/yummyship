@@ -6,10 +6,7 @@
 </div>
 <?php }?>
 <div class="hidden">
-<script type="text/javascript" src="<?php echo BYENDS_THEMES_STATIC_URL; ?>js/jquery.js"></script>
-<script type="text/javascript" src="<?php echo BYENDS_THEMES_STATIC_URL; ?>js/jquery.plugins.js?<?php echo $ver; ?>"></script>
-<script type="text/javascript" src="<?php echo BYENDS_THEMES_STATIC_URL; ?>js/common.js?<?php echo $ver; ?>"></script>
-<script type="text/javascript">
+<script>
 var 
 domain = '<?php echo str_replace('www.', '', $options->domain); ?>',
 siteUrl = '<?php echo BYENDS_SITE_URL; ?>',

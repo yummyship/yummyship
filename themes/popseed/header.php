@@ -30,8 +30,13 @@ else if( $current == $options->seed || $current == 'zoom') {
 	echo $content['stripBrief'] ? Byends_Paragraph::subStr($content['stripBrief'], 0, 100) : $options->description;
 }
 ?>">
-<?php }
-if (false) {?>
+<?php }?>
+
+<script type="text/javascript" src="<?php echo BYENDS_THEMES_STATIC_URL; ?>js/jquery.js?<?php echo $ver; ?>"></script>
+<script type="text/javascript" src="<?php echo BYENDS_THEMES_STATIC_URL; ?>js/jquery.plugins.js?<?php echo $ver; ?>"></script>
+<script type="text/javascript" src="<?php echo BYENDS_THEMES_STATIC_URL; ?>js/common.js?<?php echo $ver; ?>"></script>
+
+<?php if (false) {?>
 <link rel="alternate" type="application/rss+xml" title="RSS 2.0" href="<?php echo BYENDS_SITE_URL; ?>feed" />
 <?php }?>
 <link rel="shortcut icon" type="image/x-icon" href="<?php echo BYENDS_THEMES_STATIC_URL; ?>favicon.ico" />

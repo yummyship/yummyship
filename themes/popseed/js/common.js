@@ -217,7 +217,7 @@ var Yummyship = {
 			isResizable: true,
 			isAnimated: true,
 			Duration: 500,
-			Easing: 'easeInOutBack', //'swing',
+			Easing: 'swing', //'swing',
 			endFn: function(){}
 		});
 	},
@@ -288,7 +288,7 @@ var Yummyship = {
 			isResizable: true,
 			isAnimated: true,
 			Duration: 500,
-			Easing: 'easeInOutBack', //'swing',
+			Easing: 'swing', //'swing',
 			endFn: function(){
 				fetchingMore = false;
 			}
