@@ -42,19 +42,23 @@
 </div>
 
 <div id="pages" class="wrap clearfix">
+	<div class="pageInfo">
 		page <?php echo $pages['current']; ?> of <?php echo $pages['total']; ?>
+	</div>
 	
+	<div class="pageLinks">
 		<?php if( $pages['prev'] ) { ?>
-			<a href="<?php echo BYENDS_SITE_URL.'page/'.$pages['prev']?>">&laquo; prev</a>
+			<a href="<?php echo BYENDS_SITE_URL.$current.'/'.$userInfo->name.'/'.$pages['prev']?>">&laquo; prev</a>
 		<?php } else { ?>
 			&laquo; prev
 		<?php } ?>
 		/
 		<?php if( $pages['next'] ) { ?>
-			<a href="<?php echo BYENDS_SITE_URL.'page/'.$pages['next']?>">next &raquo;</a>
+			<a href="<?php echo BYENDS_SITE_URL.$current.'/'.$userInfo->name.'/'.$pages['next']?>">next &raquo;</a>
 		<?php } else { ?>
 			next &raquo;
 		<?php } ?>
+	</div>
 </div>
 
 <?php require 'footer.php'; ?>

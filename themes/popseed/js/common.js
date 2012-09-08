@@ -1,173 +1,176 @@
 $(document).ready(function(){
-	//upload image
-	$('textarea').autoResize();
-	$('a.delete').live('click', function(){
-		$(this).parent().find('input').val('');
-		$(this).parent().find('img').remove();
-		$(this).hide();
-		$(this).parent().children('a.btn-regular').show();
-	});
-	$('.cover-add, .steps-image-add').live('click', function(){
-		$(this).uploadFile(this);
-	});	
-	$('.ingredients-row-add').click(function(){
-		var ingredientsRows = '<div class="ingredients-row">\
-			<span class="ingredients-row-name"><input type="text" name="ingredients[]" /></span>\
-			<span class="ingredients-row-dosage"><input type="text" name="dosage[]" /></span>\
-		</div>';
-		$(this).before(ingredientsRows);
-	});
-	$('.steps-row-add').click(function(){
-		var stepsNum = $('.steps-row').size();
-			steps = '<div class="steps-row clearfix">\
-			<div class="steps-num">' + (stepsNum+1) + '</div>\
-			<div class="steps-text"><textarea name="steps[]"></textarea></div>\
-			<div class="steps-image">\
-				<div class="steps-image-uploader">\
-					<a href="javascript:void(0);" class="i-cancel delete" style="display:none">✕</a>\
-					<a href="javascript:void(0);" class="button btn-regular steps-image-add"> + Image </a>\
-					<input type="hidden" name="stepsImage[]" value=""/>\
-				</div>\
-			</div>\
-		</div>';
-		$(this).before(steps);
-	});
-	$('#recipeFm').submit(function(){
-		if (Yummyship.checkRecipe()) {
-			return true;
-		}
-		return false;
-	});
-	$('#recipeFm input[name=clear]').click(function(){
-		window.location.href = '?post&add&clear';
-	});
 	
-	
-	//zoom
-	$('.img img').hover(function(){
-		var width = $(this).parent().width() - $(this).width()-4;
-		$('.zoom').css('right', width);
-		$('.zoom').show();;
-	}, function(){
-		$('.zoom').hide();
-	});	
-	$('.zoom').hover(function(){
-		$(this).show();
-		$(this).addClass('zoom-hover');
-	}, function(){
-		$(this).removeClass('zoom-hover');
-		$(this).hide();
-	});	
-	
-	//scroll
-	$('#scroll-to-top').scrollspy({
-	      min: 500,
-	      max: 1E6,
-	      mode: 'vertical',
-	      onEnter: function(element, position) {
-	          $('#scroll-to-top').fadeIn(500)
-	      },
-	      onLeave: function(element, position) {
-	          $('#scroll-to-top').fadeOut(500)
-	      }
-	});
-	$('#scroll-to-top').click(function(e) {
-		e.preventDefault();
-		$('body,html').animate({
-			scrollTop: 0
-		},
-		300);
-	});
-	
-	//recipe
-	$('.recipe-card').hover(function(){
-		$(this).addClass('recipe-card-hover');
-	}, function(){
-		$(this).removeClass('recipe-card-hover');
-	});
-	$('.recipe-card .like').click(function(e) {
-		if (signedIn) {
-			Yummyship.likeRecipe($(this).attr('data-cid'));
-		}
-		else {
-			window.location.href = signInUrl;
-		}
-	}).attr('title', function() {
-		if (!$(this).hasClass('saved')) {
-			return 'Like this recipe';
-		}
-		else {
-			return 'Unlike this recipe';
-		}
-	}).tipTip({
-		delay: 300,
-		defaultPosition: 'left',
-		edgeOffset: 3,
-		fadeIn: 200,
-		fadeOut: 0,
-		attribute: 'title',
-	});
-	
-	//navigation
-	$('#navigation a, #navigation span').tipTip({
-		delay: 300,
-		defaultPosition: 'bottom',
-		edgeOffset: 3,
-		fadeIn: 200,
-		fadeOut: 0,
-		attribute: 'title',
-	});
-	$('#navigation a, #navigation span').tipTip({
-		delay: 300,
-		defaultPosition: 'bottom',
-		edgeOffset: 3,
-		fadeIn: 200,
-		fadeOut: 0,
-		attribute: 'title',
-	});
-	
-	// seed
-	$('#link-url').click(function(){
-		this.select();
-	});	
-	$('.share dd').click(function(){
-		var share = $(this).attr('share-name');
-		Yummyship.share(share);
-	});	
-	if ($('#sidebar-inner').is('div')) {
-		var $stick = $('#sidebar-inner'),
-		theWindow = $(window),
-		oldTop = $stick.offset().top;
-		theWindow.scroll(function() {
-			var top = theWindow.scrollTop();
-			if (top + 10 >= oldTop) {
-				$stick.css({
-					position: 'fixed',
-					top: 10
-				});
-			} else if (top + 10 < oldTop) {
-				$stick.css({
-					position: 'static',
-					top: ''
-				});
-			}
-		});
-	}	
-	$('#sidebar-inner .share img').tipTip({
-		delay: 300,
-		defaultPosition: 'top',
-		edgeOffset: 3,
-		fadeIn: 200,
-		fadeOut: 0,
-		attribute: 'alt',
-	});
-	$('#sidebar-inner .popular  a, #sidebar-inner .related  a, .latest dd a').tipTip({
-		defaultPosition: 'top'
-	});
 });
 
 
 var Yummyship = {
+	init: function() {
+		//upload image
+		$('textarea').autoResize();
+		$('a.delete').live('click', function(){
+			$(this).parent().find('input').val('');
+			$(this).parent().find('img').remove();
+			$(this).hide();
+			$(this).parent().children('a.btn-regular').show();
+		});
+		$('.cover-add, .steps-image-add').live('click', function(){
+			$(this).uploadFile(this);
+		});	
+		$('.ingredients-row-add').click(function(){
+			var ingredientsRows = '<div class="ingredients-row">\
+				<span class="ingredients-row-name"><input type="text" name="ingredients[]" /></span>\
+				<span class="ingredients-row-dosage"><input type="text" name="dosage[]" /></span>\
+			</div>';
+			$(this).before(ingredientsRows);
+		});
+		$('.steps-row-add').click(function(){
+			var stepsNum = $('.steps-row').size();
+				steps = '<div class="steps-row clearfix">\
+				<div class="steps-num">' + (stepsNum+1) + '</div>\
+				<div class="steps-text"><textarea name="steps[]"></textarea></div>\
+				<div class="steps-image">\
+					<div class="steps-image-uploader">\
+						<a href="javascript:void(0);" class="i-cancel delete" style="display:none">✕</a>\
+						<a href="javascript:void(0);" class="button btn-regular steps-image-add"> + Image </a>\
+						<input type="hidden" name="stepsImage[]" value=""/>\
+					</div>\
+				</div>\
+			</div>';
+			$(this).before(steps);
+		});
+		$('#recipeFm').submit(function(){
+			if (Yummyship.checkRecipe()) {
+				return true;
+			}
+			return false;
+		});
+		$('#recipeFm input[name=clear]').click(function(){
+			window.location.href = '?post&add&clear';
+		});
+		
+		
+		//zoom
+		$('.img img').hover(function(){
+			var width = $(this).parent().width() - $(this).width()-4;
+			$('.zoom').css('right', width);
+			$('.zoom').show();;
+		}, function(){
+			$('.zoom').hide();
+		});	
+		$('.zoom').hover(function(){
+			$(this).show();
+			$(this).addClass('zoom-hover');
+		}, function(){
+			$(this).removeClass('zoom-hover');
+			$(this).hide();
+		});	
+		
+		//scroll
+		$('#scroll-to-top').scrollspy({
+		      min: 500,
+		      max: 1E6,
+		      mode: 'vertical',
+		      onEnter: function(element, position) {
+		          $('#scroll-to-top').fadeIn(500)
+		      },
+		      onLeave: function(element, position) {
+		          $('#scroll-to-top').fadeOut(500)
+		      }
+		});
+		$('#scroll-to-top').click(function(e) {
+			e.preventDefault();
+			$('body,html').animate({
+				scrollTop: 0
+			},
+			300);
+		});
+		
+		//recipe
+		$('.recipe-card').hover(function(){
+			$(this).addClass('recipe-card-hover');
+		}, function(){
+			$(this).removeClass('recipe-card-hover');
+		});
+		$('.recipe-card .like').click(function(e) {
+			if (signedIn) {
+				Yummyship.likeRecipe($(this).attr('data-cid'));
+			}
+			else {
+				window.location.href = signInUrl;
+			}
+		}).attr('title', function() {
+			if (!$(this).hasClass('saved')) {
+				return 'Like this recipe';
+			}
+			else {
+				return 'Unlike this recipe';
+			}
+		}).tipTip({
+			delay: 300,
+			defaultPosition: 'left',
+			edgeOffset: 3,
+			fadeIn: 200,
+			fadeOut: 0,
+			attribute: 'title',
+		});
+		
+		//navigation
+		$('#navigation a, #navigation span').tipTip({
+			delay: 300,
+			defaultPosition: 'bottom',
+			edgeOffset: 3,
+			fadeIn: 200,
+			fadeOut: 0,
+			attribute: 'title',
+		});
+		$('#navigation a, #navigation span').tipTip({
+			delay: 300,
+			defaultPosition: 'bottom',
+			edgeOffset: 3,
+			fadeIn: 200,
+			fadeOut: 0,
+			attribute: 'title',
+		});
+		
+		// seed
+		$('#link-url').click(function(){
+			this.select();
+		});	
+		$('.share dd').click(function(){
+			var share = $(this).attr('share-name');
+			Yummyship.share(share);
+		});	
+		if ($('#sidebar-inner').is('div')) {
+			var $stick = $('#sidebar-inner'),
+			theWindow = $(window),
+			oldTop = $stick.offset().top;
+			theWindow.scroll(function() {
+				var top = theWindow.scrollTop();
+				if (top + 10 >= oldTop) {
+					$stick.css({
+						position: 'fixed',
+						top: 10
+					});
+				} else if (top + 10 < oldTop) {
+					$stick.css({
+						position: 'static',
+						top: ''
+					});
+				}
+			});
+		}	
+		$('#sidebar-inner .share img').tipTip({
+			delay: 300,
+			defaultPosition: 'top',
+			edgeOffset: 3,
+			fadeIn: 200,
+			fadeOut: 0,
+			attribute: 'alt',
+		});
+		$('#sidebar-inner .popular  a, #sidebar-inner .related  a, .latest dd a').tipTip({
+			defaultPosition: 'top'
+		});
+	},
 	likeRecipe : function(recipeId) {
 		if (typeof recipeId === 'undefined' || recipeId === '') {
 			displayError('Recipe not found.');
@@ -239,9 +242,9 @@ var Yummyship = {
 		    url: siteUrl + 'api/rc',
 		    dataType: 'json',
 		    data: {
-		    	action: seedQuery,
-		    	start : nextSeed,
-		    	size  : seedNums
+		    	action: seedAction,
+		    	start : seedPage,
+		    	size  : ajaxNum
 		    },
 		    cache: false,
 		    timeout: 1E4,
@@ -294,12 +297,12 @@ var Yummyship = {
 			}
 	    });
 	    
-	    if (n < seedNums + 1) Yummyship.gotAllSeed();
+	    if (n < recipeNum + 1) Yummyship.gotAllSeed();
 	    else {
 	        $('#more-recipes').show();
 	        $('#loading-more').hide();
 	    }
-	    nextSeed = data.next;
+	    seedPage = data.next;
 	},
 	gotAllSeed : function () {
 	    scrolledToEnd = true;
@@ -310,11 +313,17 @@ var Yummyship = {
 	    if (textStatus == 'error') if (jqXHR.responseText !== '') displayError(jqXHR.responseText);
 	    else displayError('Sorry, an unrecognized error occurred. Our team has just ' + 'been sent an alert email, and we\'ll look into the ' + 'problem ASAP. If the failure persists, please contact ' + 'us at support@' + domain + '. Thanks for your patience.');
 	    else if (textStatus == 'timeout') displayError('The server took too long to respond. There could be heavy ' + 'network traffic, or something might have gone wrong with ' + 'the connection. Try submitting your ingredients again. ' + 'If the failure persists, please let us know at ' + 'support@' + domain + ' so we can fix the problem.');
-	    else if (textStatus == 'parsererror') displayError('Sorry, something went wrong with the response sent by our ' + 'server. Please let us know at support@' + domain + ' so we can ' + 'fix the problem. Thanks for your patience.');
+	    else if (textStatus == 'parsererror') Yummyship.displayError('Sorry, something went wrong with the response sent by our ' + 'server. Please let us know at support@' + domain + ' so we can ' + 'fix the problem. Thanks for your patience.');
 	    else displayError('Something mysterious went wrong with your request. ' + 'Please let us know at support@' + domain + ' so we can fix the ' + 'problem. Thanks for your patience.');
 	},
 	handleNullAjaxResponse : function () {
 	    displayError('Could not reach the server. ' + 'Please check your internet connection and try again.');
+	},
+	displayError : function (text) {
+		alert(text);
+		//$('<p>'+text+'</p>').modal({
+			//title: "Error"
+		//})
 	},
 	checkRecipe : function () {
 		var msg = '',

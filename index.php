@@ -147,10 +147,13 @@ else if( $request->match($pathInfo, 'api') || $request->match($pathInfo, 'apiDo'
 				$page = $page > 0 ? $page : 0;
 				$size = $request->filter('trim', 'int')->size;
 				$size = $size > 1 && $size < 31 ? $size : $options->ajaxPerPage;
-				$widget->setPerPage( $size );
-				
 				$order = $current == 'popular' ? array('views', 'DESC') : array('cid', 'DESC');
-				$contents = $widget->setCondtion(array('page' => $page, 'order' => $order))->select();
+				$condition = array(
+					'ajaxNum' => $size, 
+					'page'    => $page, 
+					'order'   => $order
+				);
+				$contents = $widget->setCondtion($condition)->select();
 				
 				if ($page > $widget->getTotalPages()) {
 					echo json_encode(array(
@@ -163,7 +166,7 @@ else if( $request->match($pathInfo, 'api') || $request->match($pathInfo, 'apiDo'
 				foreach ($contents as $k => $v) {
 					$seeds[] = array(
 							'cid' => $v['cid'],
-							'image' => $v['image'],
+							'image' => $v['cover'],
 							'permalink' => $v['permalink'],
 							'title' => $v['title'],
 							'thumb' => $v['thumb'],
@@ -272,7 +275,8 @@ else if ($request->match($pathInfo, 'cook')
 	$current = 'cook';
 	$cook = $request->match($pathInfo, 'cook');
 	$page = $request->match($pathInfo, 'cook_page');
-	$page = $page ? $page[1]-1 : 0;
+	$page = $page ? $page[2]-1 : 0;
+	
 	$widget = Widget_Cook::getInstance();
 	$user = Widget_User::getInstance();
 	
@@ -307,7 +311,7 @@ else if ($request->match($pathInfo, 'likes')
 	$current = 'likes';
 	$likes = $request->match($pathInfo, 'likes');
 	$page = $request->match($pathInfo, 'likes_page');
-	$page = $page ? $page[1]-1 : 0;
+	$page = $page ? $page[2]-1 : 0;
 	$widget = Widget_Cook::getInstance();
 	$user = Widget_User::getInstance();
 

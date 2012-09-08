@@ -16,18 +16,19 @@ siteUrl = '<?php echo BYENDS_SITE_URL; ?>',
 signInUrl = '<?php echo BYENDS_AUTH_SIGNIN_URL; ?>',
 signedIn = <?php echo (NULL !== $widget->uid ? 'true' : 'false'); ?>,
 fetchingMore = false,
-seedQuery = '<?php echo $current; ?>',
+seedAction = '<?php echo $current; ?>',
 seedName = '<?php echo $options->seed; ?>',
-nextSeed = 1,
-seedNums = '<?php echo $options->ajaxPerPage; ?>',
+seedPage = 1,
+recipeNum = <?php echo $options->perPage; ?>,
+ajaxNum = <?php echo $options->ajaxPerPage; ?>,
 scrolledToEnd = false;
 $(document).ready(function(){
+	Yummyship.init();
 	$("#more-recipes").click(function() {
 		Yummyship.fetchMoreSeeds();
 	});
-  	
 	Yummyship.initSeeds('.recipe-card');
-	if (seedQuery == 'index' || seedQuery == 'popular') {
+	if (seedAction == 'index' || seedAction == 'popular') {
 		$(document).bind('scroll', Yummyship.scrollSeed);
 	}
 });

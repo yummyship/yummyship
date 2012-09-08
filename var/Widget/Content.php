@@ -120,6 +120,8 @@ class Widget_Content extends Byends_Widget
 			return $content;
 		}
 		else {
+			$selectNum = isset($this->sCondition['ajaxNum']) && $this->sCondition['ajaxNum'] > 0 ? 
+						$this->sCondition['ajaxNum'] : $this->perPage;
 			$condition = $this->sCondition['status'] ? ' AND c.status = :2 ' : '';
 			$condition .= $this->sCondition['uid'] ? ' AND c.uid = :3 ' : ''; 
 			$this->currentPage = $this->sCondition['page'];
@@ -137,7 +139,7 @@ class Widget_Content extends Byends_Widget
 				LIMIT
 					:4, :5',
 					$this->sCondition['type'], $this->sCondition['status'], $this->sCondition['uid'],
-					$this->currentPage * $this->perPage, $this->perPage
+					$this->currentPage * $this->perPage, $selectNum
 			);
 			$this->totals = $this->db->foundRows();
 			$this->totalPages = ceil($this->totals / $this->perPage );

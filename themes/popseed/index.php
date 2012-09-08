@@ -41,7 +41,7 @@
 		<?php } ?>
 		/
 		<?php if( $pages['next'] ) { ?>
-			<a href="<?php echo BYENDS_SITE_URL.'page/'.$pages['next']?>">next &raquo;</a>
+			<a href="<?php echo BYENDS_SITE_URL.$current.'/'.$pages['next']?>">next &raquo;</a>
 		<?php } else { ?>
 			next &raquo;
 		<?php } ?>
