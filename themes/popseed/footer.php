@@ -6,6 +6,9 @@
 </div>
 <?php }?>
 <div class="hidden">
+<script type="text/javascript" src="<?php echo BYENDS_THEMES_STATIC_URL; ?>js/jquery.js?<?php echo $ver; ?>"></script>
+<script type="text/javascript" src="<?php echo BYENDS_THEMES_STATIC_URL; ?>js/jquery.plugins.js?<?php echo $ver; ?>"></script>
+<script type="text/javascript" src="<?php echo BYENDS_THEMES_STATIC_URL; ?>js/common.js?<?php echo $ver; ?>"></script>
 <script>
 var 
 domain = '<?php echo str_replace('www.', '', $options->domain); ?>',
@@ -30,10 +33,7 @@ $(document).ready(function(){
 });
 </script>
 
-<?php if ($current == $options->seed && $_SERVER['HTTP_HOST'] != '192.168.1.80') {?>
-
 <?php 
-}
 if ( $_SERVER['HTTP_HOST'] != '192.168.1.80' ) {
 	echo $options->hiddens;
 } ?>
