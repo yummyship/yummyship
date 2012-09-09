@@ -243,8 +243,7 @@ var Yummyship = {
 		    dataType: 'json',
 		    data: {
 		    	action: seedAction,
-		    	start : seedPage,
-		    	size  : ajaxNum
+		    	nextRecipe: nextRecipe
 		    },
 		    cache: false,
 		    timeout: 1E4,
@@ -274,7 +273,7 @@ var Yummyship = {
 					+ '</div>';
 			html += '<div class="meta clearfix">'
 				+ '<div class="meta-info">'
-				+ '<span class="description">' + item.description + '</span>'
+				+ '<span class="brief">' + item.description + '</span>'
 				+ '<span class="sprite like' + saved + '" data-cid="' + item.cid + '">' + item.favoritesNum + '</span>'
 				+ '<span class="sprite clock published">' + item.dateWord + '</span>'
 				+ '</div>'
@@ -297,12 +296,12 @@ var Yummyship = {
 			}
 	    });
 	    
-	    if (n < recipeNum + 1) Yummyship.gotAllSeed();
+	    if (n < recipeNum) Yummyship.gotAllSeed();
 	    else {
 	        $('#more-recipes').show();
 	        $('#loading-more').hide();
 	    }
-	    seedPage = data.next;
+	    nextRecipe = data.next;
 	},
 	gotAllSeed : function () {
 	    scrolledToEnd = true;

@@ -20,7 +20,7 @@
 			</div>
 		</div>
 	</div>
-	<?php } ?>
+	<?php }	?>
 </div>
 
 <div id="end-marker">

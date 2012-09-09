@@ -18,9 +18,8 @@ signedIn = <?php echo (NULL !== $widget->uid ? 'true' : 'false'); ?>,
 fetchingMore = false,
 seedAction = '<?php echo $current; ?>',
 seedName = '<?php echo $options->seed; ?>',
-seedPage = 1,
-recipeNum = <?php echo $options->perPage; ?>,
-ajaxNum = <?php echo $options->ajaxPerPage; ?>,
+nextRecipe = <?php echo $options->perPage; ?>,
+recipeNum = <?php echo $options->ajaxPerPage; ?>,
 scrolledToEnd = false;
 $(document).ready(function(){
 	Yummyship.init();

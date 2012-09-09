@@ -11,11 +11,6 @@ class Widget_Content extends Byends_Widget
 	protected $cid = NULL;
 	protected $postModified = 0;
 	
-	protected $thumbName = NULL;
-	protected $imageName = NULL;
-	protected $isMkImage = FALSE;
-	protected $imageErrInfo = NULL;
-	
 	protected $coverHash = NULL;
 	protected $coverExt= NULL;
 	protected $coverSize = NULL;
@@ -120,11 +115,15 @@ class Widget_Content extends Byends_Widget
 			return $content;
 		}
 		else {
-			$selectNum = isset($this->sCondition['ajaxNum']) && $this->sCondition['ajaxNum'] > 0 ? 
-						$this->sCondition['ajaxNum'] : $this->perPage;
 			$condition = $this->sCondition['status'] ? ' AND c.status = :2 ' : '';
 			$condition .= $this->sCondition['uid'] ? ' AND c.uid = :3 ' : ''; 
-			$this->currentPage = $this->sCondition['page'];
+			$this->currentPage = isset($this->sCondition['page']) ? $this->sCondition['page'] : 0;
+			
+			$selectNum = isset($this->sCondition['ajaxNum']) && $this->sCondition['ajaxNum'] > 0 ?
+						$this->sCondition['ajaxNum'] : $this->perPage;
+			$nextRecipe = isset($this->sCondition['nextRecipe']) ?
+						$this->sCondition['nextRecipe'] : $this->currentPage * $this->perPage;
+			
 			$contents = $this->db->query(
 				'SELECT SQL_CALC_FOUND_ROWS
 					'.$this->select.', u.name AS userName
@@ -139,7 +138,7 @@ class Widget_Content extends Byends_Widget
 				LIMIT
 					:4, :5',
 					$this->sCondition['type'], $this->sCondition['status'], $this->sCondition['uid'],
-					$this->currentPage * $this->perPage, $selectNum
+					$nextRecipe, $selectNum
 			);
 			$this->totals = $this->db->foundRows();
 			$this->totalPages = ceil($this->totals / $this->perPage );
@@ -689,262 +688,6 @@ class Widget_Content extends Byends_Widget
 		return TRUE;
 	}
 	
-	
-	/**
-	 * 处理远程图片
-	 */
-	private function mkImage( $url, $referer, $created) 
-	{
-		// Determine the target path based on the current date (e.g. data/2008/04/)
-		$imageDir = __BYENDS_ROOT_DIR__.__BYENDS_COVERS_DIR__ . date('Y/m', $created);
-		$thumbDir = __BYENDS_ROOT_DIR__.__BYENDS_THUMBS_DIR__ . date('Y/m', $created);
-		
-		// Extract the image name from the url, remove all special characters from it
-		// and determine the local file name
-		$imageName = strtolower( substr(strrchr( $url, '/'), 1) );
-		$imageName = preg_replace( '/[^a-zA-Z\d\.]+/', '-', $imageName );
-		$imageName = preg_replace( '/^\-+|\-+$/', '', $imageName );
-		
-		if( !preg_match('/\.(png|gif|jpg|jpeg)$/i', $imageName) ) {
-			$imageName .= '.jpg';
-		}
-		
-		$imageSuffix = strtolower(substr( $imageName, strrpos($imageName, '.') + 1 ));
-		$imageName = md5($this->options->domain.$imageName).'.'.$imageSuffix;
-		
-		$thumbName = substr( $imageName, 0, strrpos($imageName, '.') ) . '.jpg';
-		$this->imageName = $this->getUniqueFileName( $imageDir, $imageName );
-		$this->thumbName = $this->getUniqueFileName( $thumbDir, $thumbName );
-		
-		$imagePath = $imageDir .'/'. $this->imageName;
-		$thumbPath = $thumbDir .'/'. $this->thumbName;
-		
-		
-		// Create target directories and download the image
-		if(
-				!$this->mkdirr($imageDir) ||
-				!$this->mkdirr($thumbDir) ||
-				!$this->download($url, $referer, $imagePath)
-		) {
-			$this->isMkImage = FALSE;
-			$this->imageErrInfo = 'download-failed';
-		}else{
-			// Was this image already posted
-			$this->coverHash = md5_file( $imagePath );
-			$c = $this->db->query('SELECT cid FROM '.BYENDS_TABLE_CONTENTS.' WHERE hash = :1', $this->coverHash);
-			if( !empty( $c ) ) {
-				unlink( $imagePath );
-				$this->isMkImage = FALSE;
-				$this->imageErrInfo = 'duplicate-image';
-			}else		
-			// Create the thumbnail and insert post to the db
-			if(
-					!$this->createThumb(
-							$imagePath, $thumbPath,
-							$this->options->imageConfig['thumbWidth'], $this->options->imageConfig['thumbHeight'],
-							$this->options->imageConfig['jpegQuality']
-					)
-			) {
-				$this->isMkImage = FALSE;
-				$this->imageErrInfo = 'thumbnail-failed';
-			}
-			else {
-				$this->isMkImage = TRUE;
-			}
-		}
-	}
-	
-	/**
-	 * 下载远程图片
-	 * @param string $url
-	 * @param string $referer
-	 * @param string $target
-	 * @return boolean
-	 */
-	private function download($url, $referer, $target) 
-	{
-		// Open the target file for writing
-		$fpLocal = @fopen( $target, 'w' );
-		if( !$fpLocal ) {
-			return FALSE;
-		}
-	
-	
-		// Use cURL to download if available
-		if( is_callable('curl_init') ) {
-			$ch = curl_init();
-			curl_setopt( $ch, CURLOPT_URL, $url );
-			curl_setopt( $ch, CURLOPT_REFERER, $referer );
-			curl_setopt( $ch, CURLOPT_CONNECTTIMEOUT, 10 );
-			curl_setopt( $ch, CURLOPT_FOLLOWLOCATION, 1 );
-			curl_setopt( $ch, CURLOPT_HEADER, 0 );
-			curl_setopt( $ch, CURLOPT_FILE, $fpLocal );
-			if( !curl_exec($ch) ) {
-				fclose( $fpLocal );
-				curl_close( $ch );
-				return FALSE;
-			}
-			curl_close( $ch );
-		}
-		// Otherwise use fopen
-		else {
-			$opts = array(
-					'http' => array(
-							'method' => "GET",
-							'header' => "Referer: $referer\r\n"
-					)
-			);
-				
-			$context = stream_context_create( $opts );
-			$fpRemote = @fopen( $url, 'r', FALSE, $context );
-			if( !$fpRemote ) {
-				fclose( $fpLocal );
-				return FALSE;
-			}
-				
-			while( !feof( $fpRemote ) ) {
-				fwrite( $fpLocal, fread($fpRemote, 8192) );
-			}
-			fclose( $fpRemote );
-		}
-	
-		fclose( $fpLocal );
-		return TRUE;
-	}
-	
-	/**
-	 * 生成缩略图
-	 * @param string $imgPath
-	 * @param string $thumbPath
-	 * @param string $thumbWidth
-	 * @param string $thumbHeight
-	 * @param integer $quality
-	 * @return boolean
-	 */
-	private function createThumb($imgPath, $thumbPath, $thumbWidth, $thumbHeight, $quality)
-	{
-		// Get image type and size and check if we can handle it
-		list( $srcWidth, $srcHeight, $type ) = getimagesize( $imgPath );
-		if(
-				$srcWidth < 1 //|| $srcWidth > 4096
-				|| $srcHeight < 1 //|| $srcHeight > 4096
-		) {
-			return FALSE;
-		}
-	
-		switch( $type ) {
-			case IMAGETYPE_JPEG: $imgCreate = 'ImageCreateFromJPEG'; break;
-			case IMAGETYPE_GIF: $imgCreate = 'ImageCreateFromGIF'; break;
-			case IMAGETYPE_PNG: $imgCreate = 'ImageCreateFromPNG'; break;
-			default: return FALSE;
-		}
-		
-		$this->coverSize = $srcWidth.'|'.$srcHeight;
-		
-	
-		// Crop the image horizontal or vertical
-		$srcX = 0;
-		$srcY = 0;
-		
-		if( $this->options->imageConfig['cropType'] ) {
-			if( ( $srcWidth/$srcHeight ) > ( $thumbWidth/$thumbHeight ) ) {
-				$zoom = ($srcWidth/$srcHeight) / ($thumbWidth/$thumbHeight);
-				$srcX = ($srcWidth - $srcWidth / $zoom) / 2;
-				$srcWidth = $srcWidth / $zoom;
-			}
-			else {
-				$zoom = ($thumbWidth/$thumbHeight) / ($srcWidth/$srcHeight);
-				$srcY = ($srcHeight - $srcHeight / $zoom) / 2;
-				$srcHeight = $srcHeight / $zoom;
-			}
-		}
-		else {
-			// 计算缩放比例
-			//$scale = min($thumbWidth/$srcWidth, $thumbHeight/$srcHeight);
-			//改为以宽度缩放
-			$scale = $thumbWidth/$srcWidth;
-			
-			if($scale >= 1)
-			{
-				// 超过原图大小不再缩略
-				$thumbWidth   =  $srcWidth;
-				$thumbHeight  =  $srcHeight;
-			}
-			else
-			{
-				// 缩略图尺寸
-				$thumbWidth  = (int)($srcWidth*$scale);
-				$thumbHeight = (int)($srcHeight*$scale);
-			}
-			
-			$thumbZoom = $thumbWidth/$thumbHeight;
-			$srcZoom = $srcWidth/$srcHeight;
-			if($srcZoom >= $thumbZoom)
-			{
-				$srcX = ($srcWidth - ($thumbZoom * $srcHeight)) / 2;
-				$thumbWidth = ($thumbHeight * $srcWidth) / $srcHeight;
-			}
-			else
-			{
-				$srcY = ($srcHeight - ( (1 / $thumbZoom) * $srcWidth)) / 2;
-				$thumbHeight = ($thumbWidth * $srcHeight) / $srcWidth;
-			}
-		}
-	
-		// Resample and create the thumbnail
-		$thumb = imageCreateTrueColor( $thumbWidth, $thumbHeight );
-		$orig = $imgCreate( $imgPath );
-		imageCopyResampled( $thumb, $orig, 0, 0, $srcX, $srcY, $thumbWidth, $thumbHeight, $srcWidth, $srcHeight );
-		imagejpeg( $thumb, $thumbPath, $quality );
-	
-		imageDestroy( $thumb );
-		imageDestroy( $orig );
-		return TRUE;
-	}
-	
-	/**
-	 * 获取唯一的文件名称
-	 * @param string $directory
-	 * @param string $initialName
-	 * @return string
-	 */
-	protected function getUniqueFileName($directory, $initialName)
-	{
-		list($newName, $imageSuffix) = explode('.', $initialName);
-		$path = $directory .'/'. $initialName;
-		
-		// Do we already have a file with this name -> Add a numerical prefix
-		for( $i = 1; file_exists($path); $i++ ) {
-			$newName = md5($newName.'_'.$i);
-			$path = $directory .'/'. $newName.'.'.$imageSuffix;
-		}
-		
-		return $newName.'.'.$imageSuffix;
-	}
-	
-	/**
-	 * 递归生成多层目录
-	 */
-	protected function mkdirr($pathname) 
-	{
-		if( empty($pathname) || is_dir($pathname) ) {
-			return TRUE;
-		}
-		if ( is_file($pathname) ) {
-			return FALSE;
-		} 
-
-		$nextPathname = substr( $pathname, 0, strrpos( $pathname, '/' ) );
-		if( $this->mkdirr( $nextPathname ) ) {
-			if( !file_exists( $pathname ) ) {
-				$oldUmask = umask(0); 
-				$success = @mkdir( $pathname, 0777 );
-				umask( $oldUmask ); 
-				return $success;
-			}
-		}
-		return FALSE;
-	}
 }
 
 ?>

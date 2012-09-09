@@ -13,7 +13,7 @@ require_once 'Widget/Config.php';
 $request = Byends_Request::getInstance($options);
 $pathInfo = $request->getPathInfo();
 
-$ver = '12.9.8.1558';
+$ver = '12.9.9.910';
 
 /** index */
 if ( $request->match($pathInfo, 'index') || $request->match($pathInfo, 'index_page') ){
@@ -142,26 +142,15 @@ else if( $request->match($pathInfo, 'api') || $request->match($pathInfo, 'apiDo'
 					echo $deniedMsg;
 					exit;
 				}
-				
-				$page = $request->filter('trim', 'int')->start;
-				$page = $page > 0 ? $page : 0;
-				$size = $request->filter('trim', 'int')->size;
-				$size = $size > 1 && $size < 31 ? $size : $options->ajaxPerPage;
+				$ajaxPerPage = $request->filter('trim', 'int')->ajaxNum;
+				$nextRecipe = $request->filter('trim', 'int')->nextRecipe;
 				$order = $current == 'popular' ? array('views', 'DESC') : array('cid', 'DESC');
 				$condition = array(
-					'ajaxNum' => $size, 
-					'page'    => $page, 
+					'ajaxNum' => $ajaxPerPage ? $ajaxPerPage : $widget->options->ajaxPerPage,
+					'nextRecipe' => $nextRecipe,
 					'order'   => $order
 				);
 				$contents = $widget->setCondtion($condition)->select();
-				
-				if ($page > $widget->getTotalPages()) {
-					echo json_encode(array(
-							'seeds' => array(),
-							'next' => ''
-					));
-					exit;
-				}
 				$seeds = array();
 				foreach ($contents as $k => $v) {
 					$seeds[] = array(
@@ -179,7 +168,7 @@ else if( $request->match($pathInfo, 'api') || $request->match($pathInfo, 'apiDo'
 				}
 				echo json_encode(array(
 						'seeds' => $seeds,
-						'next' => $page + 1
+						'next' => $nextRecipe + count($contents)
 				));
 				exit;
 				break;
