@@ -13,7 +13,7 @@ require_once 'Widget/Config.php';
 $request = Byends_Request::getInstance($options);
 $pathInfo = $request->getPathInfo();
 
-$ver = '12.9.10.1314';
+$ver = '12.9.10.1011';
 
 /** index */
 if ( $request->match($pathInfo, 'index') || $request->match($pathInfo, 'index_page') ){

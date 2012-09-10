@@ -421,7 +421,7 @@ h5,h6{font-size:1em}
 
 /* index */
 #container {
-	min-width: 1200px;
+	width: 1200px;
 	margin: auto;
 }
 .recipe-card {

@@ -15,17 +15,17 @@ domain = '<?php echo str_replace('www.', '', $options->domain); ?>',
 siteUrl = '<?php echo BYENDS_SITE_URL; ?>',
 signInUrl = '<?php echo BYENDS_AUTH_SIGNIN_URL; ?>',
 signedIn = <?php echo (NULL !== $widget->uid ? 'true' : 'false'); ?>,
-fetchingMore = false,
 seedAction = '<?php echo $current; ?>',
 seedName = '<?php echo $options->seed; ?>',
 nextRecipe = <?php echo $options->perPage; ?>,
 recipeNum = <?php echo $options->ajaxPerPage; ?>,
+fetchingMore = true,
 scrolledToEnd = false;
-$(document).ready(function(){
-	Yummyship.init();
-});
+Yummyship.initSeeds('.recipe-card');
+if (typeof seedAction !== 'undefined' && (seedAction == 'index' || seedAction == 'popular')) {
+	$(document).bind('scroll', Yummyship.scrollSeed);
+}
 </script>
-
 <?php 
 if ( $_SERVER['HTTP_HOST'] != '192.168.1.80' ) {
 	echo $options->hiddens;
