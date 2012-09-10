@@ -9,7 +9,7 @@
 <script type="text/javascript" src="<?php echo BYENDS_THEMES_STATIC_URL; ?>js/jquery.js?<?php echo $ver; ?>"></script>
 <script type="text/javascript" src="<?php echo BYENDS_THEMES_STATIC_URL; ?>js/jquery.plugins.js?<?php echo $ver; ?>"></script>
 <script type="text/javascript" src="<?php echo BYENDS_THEMES_STATIC_URL; ?>js/common.js?<?php echo $ver; ?>"></script>
-<script>
+<script type="text/javascript">
 var 
 domain = '<?php echo str_replace('www.', '', $options->domain); ?>',
 siteUrl = '<?php echo BYENDS_SITE_URL; ?>',
@@ -23,13 +23,6 @@ recipeNum = <?php echo $options->ajaxPerPage; ?>,
 scrolledToEnd = false;
 $(document).ready(function(){
 	Yummyship.init();
-	$("#more-recipes").click(function() {
-		Yummyship.fetchMoreSeeds();
-	});
-	Yummyship.initSeeds('.recipe-card');
-	if (seedAction == 'index' || seedAction == 'popular') {
-		$(document).bind('scroll', Yummyship.scrollSeed);
-	}
 });
 </script>
 

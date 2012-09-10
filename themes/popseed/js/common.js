@@ -1,10 +1,43 @@
-$(document).ready(function(){
-	
-});
-
-
 var Yummyship = {
 	init: function() {
+		//recipe
+		Yummyship.initSeeds('.recipe-card');
+		if (typeof seedAction !== 'undefined' && (seedAction == 'index' || seedAction == 'popular')) {
+			$(document).bind('scroll', Yummyship.scrollSeed);
+		}
+		$("#more-recipes").click(function() {
+			Yummyship.fetchMoreSeeds();
+		});
+		$('.recipe-card').hover(function(){
+			$(this).addClass('recipe-card-hover');
+		}, function(){
+			$(this).removeClass('recipe-card-hover');
+		});
+		$('.recipe-card .like').click(function(e) {
+			if (signedIn) {
+				Yummyship.likeRecipe($(this).attr('data-cid'));
+			}
+			else {
+				window.location.href = signInUrl;
+			}
+		}).attr('title', function() {
+			if (!$(this).hasClass('saved')) {
+				return 'Like this recipe';
+			}
+			else {
+				return 'Unlike this recipe';
+			}
+		}).tipTip({
+			delay: 300,
+			defaultPosition: 'left',
+			edgeOffset: 3,
+			fadeIn: 200,
+			fadeOut: 0,
+			attribute: 'title',
+		});
+		
+		
+		
 		//upload image
 		$('textarea').autoResize();
 		$('a.delete').live('click', function(){
@@ -83,35 +116,6 @@ var Yummyship = {
 				scrollTop: 0
 			},
 			300);
-		});
-		
-		//recipe
-		$('.recipe-card').hover(function(){
-			$(this).addClass('recipe-card-hover');
-		}, function(){
-			$(this).removeClass('recipe-card-hover');
-		});
-		$('.recipe-card .like').click(function(e) {
-			if (signedIn) {
-				Yummyship.likeRecipe($(this).attr('data-cid'));
-			}
-			else {
-				window.location.href = signInUrl;
-			}
-		}).attr('title', function() {
-			if (!$(this).hasClass('saved')) {
-				return 'Like this recipe';
-			}
-			else {
-				return 'Unlike this recipe';
-			}
-		}).tipTip({
-			delay: 300,
-			defaultPosition: 'left',
-			edgeOffset: 3,
-			fadeIn: 200,
-			fadeOut: 0,
-			attribute: 'title',
 		});
 		
 		//navigation
@@ -220,7 +224,7 @@ var Yummyship = {
 			isResizable: true,
 			isAnimated: true,
 			Duration: 500,
-			Easing: 'swing', //'swing',
+			Easing: 'easeInOutBack', //'swing',
 			endFn: function(){}
 		});
 	},
@@ -290,7 +294,7 @@ var Yummyship = {
 			isResizable: true,
 			isAnimated: true,
 			Duration: 500,
-			Easing: 'swing', //'swing',
+			Easing: 'easeInOutBack', //'swing',
 			endFn: function(){
 				fetchingMore = false;
 			}
