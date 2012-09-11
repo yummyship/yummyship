@@ -47,9 +47,11 @@
 					<ol>
 					<?php 
 					$li = '';
+					$stepsNum = count($content['steps']);
 					foreach ($content['steps'] as $k => $v) {
 						list($stepText, $stepImage) = explode('@#|@', $v);
-						$li .= '<li class="clearfix"><em>'.($k+1).'.</em>';
+						$li .= '<li class="clearfix">';
+						$li .= $stepsNum > 1 ? '<em>'.($k+1).'.</em>' : '';
 						$li .= '<span>'.$stepText.'</span>';
 						if ($stepImage) {
 							$li .='<img src="'.$stepImage.'" alt="'.$content['title'].' Step '.($k+1).'" width="'.$options->imageConfig['stepSize'][0].'" height="'.$options->imageConfig['stepSize'][1].'" />';

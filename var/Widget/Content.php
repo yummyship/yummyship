@@ -15,7 +15,7 @@ class Widget_Content extends Byends_Widget
 	protected $coverExt= NULL;
 	protected $coverSize = NULL;
 	
-	protected $stepImageurl = NULL;
+	protected $stepImageUrl = NULL;
 	
 	public $type = array(
 		'post' => 'post',
@@ -409,7 +409,7 @@ class Widget_Content extends Byends_Widget
 				$tempStep[] = $v;
 				if ($content['stepsImage'][$k]) {
 					if ($this->stepImageHandle($content['stepsImage'][$k], $created)) {
-						$tempStepImage = $this->stepImageurl;
+						$tempStepImage = $this->stepImageUrl;
 					}
 				}
 				$steps[] = $v. '@#|@' . $tempStepImage;
@@ -535,7 +535,7 @@ class Widget_Content extends Byends_Widget
 						$tempStepImage = $stepImage;
 					}
 					elseif ($this->stepImageHandle($content['stepsImage'][$k], $modified)) {
-						$tempStepImage = $this->stepImageurl;
+						$tempStepImage = $this->stepImageUrl;
 					}
 				}
 				$steps[] = $v. '@#|@' . $tempStepImage;
@@ -642,8 +642,9 @@ class Widget_Content extends Byends_Widget
 		$coverDir .= '/'. $coverHash. '.' . $ext;
 		$thumbDir .= '/'. $coverHash. '.' . $ext;
 		list( $coverWidth, $coverHeight, $type ) = getimagesize( $coverPath );
-		$coverHeight = floor($coverHeight/$coverWidth ) * $this->options->imageConfig['coverSize'][0];
-		
+		$coverHeight = floor(($coverHeight/$coverWidth ) * $this->options->imageConfig['coverSize'][0]);
+		$coverHeight = $this->options->imageConfig['coverSize'][1] > $coverHeight ? 
+					$this->options->imageConfig['coverSize'][1] : $coverHeight;
 		$this->instanceUpload->createThumb($coverPath, $coverDir, 
 				$this->options->imageConfig['coverSize'][0], 
 				$coverHeight, 
@@ -679,12 +680,17 @@ class Widget_Content extends Byends_Widget
 		$fileName = $this->instanceUpload->getUniqueFileName($stepImageDir, $fileName);
 		$stepImageDir .= '/' . $fileName;
 		
+		list( $stepWidth, $stepHeight, $type ) = getimagesize( $stepImagePath );
+		$stepHeight = floor(($stepHeight/$stepWidth ) * $this->options->imageConfig['stepSize'][0]);
+		$stepHeight = $this->options->imageConfig['stepSize'][1] > $stepHeight ?
+					$this->options->imageConfig['stepSize'][1] : $stepHeight;
+		
 		$this->instanceUpload->createThumb($stepImagePath, $stepImageDir,
 				$this->options->imageConfig['stepSize'][0],
-				$this->options->imageConfig['stepSize'][1],
+				$stepHeight,
 				$this->options->imageConfig['jpegQuality']);
 		
-		$this->stepImageurl = BYENDS_STEPS_STATIC_URL . date('Y/m', $created) . '/' . $fileName;
+		$this->stepImageUrl = BYENDS_STEPS_STATIC_URL . date('Y/m', $created) . '/' . $fileName;
 		return TRUE;
 	}
 	
