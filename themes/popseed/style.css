@@ -342,7 +342,7 @@ h5,h6{font-size:1em}
 
 /* header */
 #header{
-	min-width: 1200px;
+	min-width: 1144px;
 	background: url(images/bg_menutop.png) repeat-x;
 	overflow: hidden;
 	text-shadow: 0 1px 0 white;

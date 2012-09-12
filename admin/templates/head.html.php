@@ -16,7 +16,7 @@
 	<a href="<?php echo BYENDS_AUTH_SIGNOUT_URL; ?>">Logout</a>
 	<br />
 	<br />
-	<a href="<?php echo BYENDS_SITE_URL; ?>" target="_blank">Visite Site</a>
+	<a href="<?php echo BYENDS_SITE_URL; ?>" target="_blank">Visit Site</a>
 	<h1><?php echo $options->title; ?></h1>
 	<a href="?post">Posts</a>
 	<br />
@@ -25,12 +25,10 @@
 	<a href="?user">Users</a>
 	<br />
 	<a href="?setting">Settings</a>
+	<!-- 
 	<br />
 	Bookmarklet:
 	<a class="bookmarklet" title="Post Bookmarklet" href="javascript:void(function(a,b,c,d){d=b.createElement('script');d.setAttribute('charset','utf-8');d.src='<?php echo BYENDS_SITE_URL.'gather/gather.js.php'; ?>?'+new Date().getTime();b.body.appendChild(d)}(window,document))"><?php echo $options->title; ?></a>
-	<!-- 
-	<br />
-	<a class="bookmarklet" title="Post Bookmarklet" href="javascript:void(function(a,b,c,d){d=b.createElement('script');d.setAttribute('charset','utf-8');d.src='<?php echo BYENDS_POST_JS; ?>?'+new Date().getTime();b.body.appendChild(d)}(window,document))"><?php echo $options->title; ?></a>
 	 -->
 </div>
 

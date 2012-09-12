@@ -65,8 +65,9 @@ else if( $current == $options->seed || $current == 'zoom') {
 			else {
 			?>
 			<li class="last"><a href="<?php echo BYENDS_AUTH_SIGNIN_URL; ?>">Sign in</a></li>
-			<!-- <li class="last"><a href="<?php echo BYENDS_AUTH_SIGNUP_URL; ?>">Sign up</a></li> -->
-			<?php }?>
+			<?php if (FALSE) { ?>
+			<li class="last"><a href="<?php echo BYENDS_AUTH_SIGNUP_URL; ?>">Sign up</a></li>
+			<?php } }?>
 		</ul>
 	</div>
 </div>

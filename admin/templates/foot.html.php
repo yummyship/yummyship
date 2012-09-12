@@ -7,9 +7,6 @@
 <script type="text/javascript">
 var
 siteUrl = '<?php echo BYENDS_SITE_URL; ?>';
-$(document).ready(function(){
-	Yummyship.init();
-});
 </script>
 </body>
 </html>

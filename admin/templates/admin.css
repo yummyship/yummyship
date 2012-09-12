@@ -11,6 +11,7 @@ body {
 	color: #333;
 	margin: 0;
 	padding: 1em 0 0;
+	min-width: 1018px;
 }
 
 img {
@@ -28,7 +29,7 @@ a:hover {
 
 h1 {
 	text-transform: uppercase;
-	font-size: 140%;
+	font-size: 120%;
 	font-weight: normal;
 	margin: 1em 0 0.5em 0;
 	padding: 0;
@@ -94,7 +95,7 @@ dd {
 	float: left;
 	border-right: 1px solid #eee;
 	padding: 0 1em 3em;
-	margin: 1em 3em 0 0;
+	margin: 1em 1em 0 0;
 }
 
 #menu .avatar {
@@ -270,8 +271,10 @@ td.uid {
 	width: 5em;
 	text-align: center
 }
-
-table.users td {
+table.tags .name {
+	width: 30em
+}
+table.users td,  table.tags td {
 	height: 22px;
 }
 

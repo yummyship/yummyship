@@ -2,7 +2,7 @@
 
 <h2>Tags <span class="span-add">+ <a href="?tag&add">Add Tag</a></span></h2>
 
-<table class="users">
+<table class="tags">
 	<tr>
 		<th>Mid</th>
 		<th>Name</th>

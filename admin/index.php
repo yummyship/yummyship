@@ -8,7 +8,7 @@ if (!defined('__BYENDS_ROOT_DIR__')) {
 
 //header( 'Content-type: text/html; charset=utf-8' );
 
-$ver = '12.9.7.1234';
+$ver = '12.9.12.1036';
 
 /** Setting */
 if ($request->isSetRequest('setting')) {
