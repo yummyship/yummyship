@@ -11,19 +11,19 @@ header( 'Content-type: text/html; charset=utf-8' );
 
 $createTablesSQL = array(
 	"CREATE TABLE IF NOT EXISTS `".BYENDS_TABLE_CONTENTS."` (
-	  `cid` int(10) unsigned NOT null AUTO_INCREMENT,
-	  `title` varchar(200) DEFAULT null,
-	  `slug` varchar(200) default null,
+	  `cid` int(10) unsigned NOT NULL AUTO_INCREMENT,
+	  `title` varchar(200) DEFAULT NULL,
+	  `slug` varchar(200) DEFAULT NULL,
 	  `uid` int(10) unsigned DEFAULT '0',
 	  `created` int(10) unsigned DEFAULT '0',
 	  `modified` int(10) unsigned DEFAULT '0',
-	  `coverHash` varchar(32) DEFAULT null,
-	  `coverExt` varchar(5) DEFAULT null,
-	  `coverSize` varchar(16) DEFAULT null,
-	  `brief` text DEFAULT null,
-	  `ingredients` text DEFAULT null,
-	  `steps` text DEFAULT null,
-	  `tips` text DEFAULT null,
+	  `coverHash` varchar(32) DEFAULT NULL,
+	  `coverExt` varchar(5) DEFAULT NULL,
+	  `coverSize` varchar(16) DEFAULT NULL,
+	  `brief` text DEFAULT NULL,
+	  `ingredients` text DEFAULT NULL,
+	  `steps` text DEFAULT NULL,
+	  `tips` text DEFAULT NULL,
 	  `type` varchar(16) DEFAULT 'post',
 	  `status` varchar(16) DEFAULT 'waiting',
 	  `allowComment` char(1) DEFAULT '0',
@@ -38,18 +38,18 @@ $createTablesSQL = array(
 	) ENGINE=MyISAM  DEFAULT CHARSET=utf8;",
 	
 	"CREATE TABLE IF NOT EXISTS `".BYENDS_TABLE_FAVORITES."` (
-	  `uid` int(10) unsigned NOT null,
-	  `cid` int(10) unsigned NOT null,
+	  `uid` int(10) unsigned NOT NULL,
+	  `cid` int(10) unsigned NOT NULL,
 	  `created` int(10) unsigned DEFAULT '0',
 	  PRIMARY KEY (`uid`,`cid`)
 	) ENGINE=MyISAM DEFAULT CHARSET=utf8;",
 		
 	"CREATE TABLE IF NOT EXISTS `".BYENDS_TABLE_METAS."` (
-	  `mid` int(10) unsigned NOT null AUTO_INCREMENT,
-	  `name` varchar(200) DEFAULT null,
-	  `slug` varchar(200) DEFAULT null,
-	  `type` varchar(16) NOT null,
-	  `description` varchar(200) DEFAULT null,
+	  `mid` int(10) unsigned NOT NULL AUTO_INCREMENT,
+	  `name` varchar(200) DEFAULT NULL,
+	  `slug` varchar(200) DEFAULT NULL,
+	  `type` varchar(16) NOT NULL,
+	  `description` varchar(200) DEFAULT NULL,
 	  `count` int(10) unsigned DEFAULT '0',
 	  PRIMARY KEY (`mid`),
 	  KEY `name` (`name`),
@@ -57,31 +57,31 @@ $createTablesSQL = array(
 	) ENGINE=MyISAM  DEFAULT CHARSET=utf8 ;",
 	
 	"CREATE TABLE IF NOT EXISTS `".BYENDS_TABLE_OPTIONS."` (
-	  `name` varchar(32) NOT null,
+	  `name` varchar(32) NOT NULL,
 	  `value` text,
 	  PRIMARY KEY (`name`)
 	) ENGINE=MyISAM DEFAULT CHARSET=utf8;",
 	
 	"CREATE TABLE IF NOT EXISTS `".BYENDS_TABLE_RELATE."` (
-	  `cid` int(10) unsigned NOT null,
-	  `mid` int(10) unsigned NOT null,
+	  `cid` int(10) unsigned NOT NULL,
+	  `mid` int(10) unsigned NOT NULL,
 	  PRIMARY KEY (`cid`,`mid`)
 	) ENGINE=MyISAM DEFAULT CHARSET=utf8;",
 	
 	
 	"CREATE TABLE IF NOT EXISTS `".BYENDS_TABLE_USERS."` (
-	  `uid` int(10) unsigned NOT null AUTO_INCREMENT,
-	  `name` varchar(32) DEFAULT null,
-	  `password` varchar(64) DEFAULT null,
-	  `mail` varchar(200) DEFAULT null,
-	  `url` varchar(200) DEFAULT null,
+	  `uid` int(10) unsigned NOT NULL AUTO_INCREMENT,
+	  `name` varchar(32) DEFAULT NULL,
+	  `password` varchar(64) DEFAULT NULL,
+	  `mail` varchar(200) DEFAULT NULL,
+	  `url` varchar(200) DEFAULT NULL,
 	  `created` int(10) unsigned DEFAULT '0',
 	  `logged` int(10) unsigned DEFAULT '0',
-	  `group` varchar(16) NOT null DEFAULT 'visitor',
-	  `authCode` varchar(64) DEFAULT null,
+	  `group` varchar(16) NOT NULL DEFAULT 'visitor',
+	  `authCode` varchar(64) DEFAULT NULL,
 	  `description` text,
-	  `avatar` varchar(32) DEFAULT null,
-	  `notify` varchar(255) DEFAULT null,
+	  `avatar` varchar(32) DEFAULT NULL,
+	  `notify` varchar(255) DEFAULT NULL,
 	  `status` varchar(16) DEFAULT 'normal',
 	  PRIMARY KEY (`uid`),
 	  UNIQUE KEY `name` (`name`),
