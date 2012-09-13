@@ -11,7 +11,7 @@
  *
  * @author BYENDS (byends@gmail.com)
  * @package Byends_Json
- * @copyright  Copyright (c) 2011 Byends (http://www.byends.com)
+ * @copyright  Copyright (c) 2012 Byends (http://www.byends.com)
  */
 class Byends_Json
 {
@@ -132,7 +132,7 @@ class Byends_Json
             case 'boolean':
                 return $var ? 'true' : 'false';
 
-            case 'NULL':
+            case 'null':
                 return 'null';
 
             case 'integer':

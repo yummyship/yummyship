@@ -8,25 +8,25 @@ if (!defined('__BYENDS_ROOT_DIR__')) {
 
 //header( 'Content-type: text/html; charset=utf-8' );
 
-$ver = '12.9.12.1036';
+$ver = '12.9.13.1505';
 
 /** Setting */
 if ($request->isSetRequest('setting')) {
+	$widget = Widget_Options::getInstance();
+	
 	if ($request->isSetPost('update')) {
-		$widget = Widget_Options::getInstance();
-		
 		if( $request->get('options') ) {
 			foreach( $request->get('options') as $k => $v ) {
-				$widget->updateOption($k, $v);
+				$widget->update($k, $v);
 			}
 		}
 		
 		if( $request->get('imageConfig') ) {
-			$widget->updateOption('imageConfig', serialize( $request->get('imageConfig') ));
+			$widget->update('imageConfig', serialize( $request->get('imageConfig') ));
 		}
 		
 		$status = 'save-succ';
-		$options = (object)$widget->getOptions();
+		$options = (object)$widget->select();
 		include( BYENDS_ADMIN_THEMES_DIR.'settings.html.php' );
 	}
 	else {
@@ -43,9 +43,9 @@ elseif ($request->isSetRequest('user')) {
 	if ($request->isSetGet('add')) {
 		/** insert user */
 		if ($request->isSetPost('insert')) {
-			$status = $widget->addUser();
+			$status = $widget->insert();
 			
-			if( $status === TRUE ) {
+			if( $status === true ) {
 				$response->redirect(BYENDS_ADMIN_URL.'?user');
 			} 
 		}
@@ -54,7 +54,7 @@ elseif ($request->isSetRequest('user')) {
 	}
 	/** delete user */
 	elseif ($request->isSetRequest('delete')) {
-		$widget->deleteUser( $request->filter('trim', 'int')->get('uid', 0) );
+		$widget->delete();
 		$response->redirect(BYENDS_ADMIN_URL.'?user');
 	}
 	/** edit user */
@@ -67,9 +67,9 @@ elseif ($request->isSetRequest('user')) {
 		
 		/** update user */
 		if ($request->isSetPost('update')) {
-			$status = $widget->updateUser();
+			$status = $widget->update();
 			
-			if( $status === TRUE ) {
+			if( $status === true ) {
 				$response->redirect(BYENDS_ADMIN_URL.'?user');
 			} else {
 				$user = $request
@@ -79,7 +79,13 @@ elseif ($request->isSetRequest('user')) {
 			}
 		}
 		else {
-			$user = $widget->getUser(array('uid' => $uid), NULL, TRUE, FALSE);
+			$condition = array(
+					'params' => array('uid' => $uid),
+					'status'      => null,
+					'processUser' => true,
+					'object'      => false,
+			);
+			$user = $widget->setCondtion($condition)->select(); 
 				
 			if ( empty($user)) {
 				$response->redirect(BYENDS_ADMIN_URL.'?user');
@@ -93,7 +99,12 @@ elseif ($request->isSetRequest('user')) {
 		$widget->setPerPage($options->adminPerPage);
 		$page = $request->get('page', 0);
 		$page = $page ? $page-1 : 0;
-		$users = $widget->getUsers($page, array('uid', 'DESC'), NULL);
+		$condition = array(
+				'params'      => array(),
+				'page'        => $page,
+				'status'      => null,
+		);
+		$users = $widget->setCondtion($condition)->select();
 		$pages = $widget->getPages();
 		include( BYENDS_ADMIN_THEMES_DIR.'users.html.php' );
 	}
@@ -108,9 +119,9 @@ elseif ($request->isSetRequest('tag')) {
 	if ($request->isSetGet('add')) {
 		/** insert tag */
 		if ($request->isSetPost('insert')) {
-			$status = $widget->addTag();
+			$status = $widget->insert();
 		
-			if( $status === TRUE ) {
+			if( $status === true ) {
 				$response->redirect(BYENDS_ADMIN_URL.'?tag');
 			}
 		}
@@ -119,24 +130,22 @@ elseif ($request->isSetRequest('tag')) {
 	}
 	/** delete tag */
 	elseif ($request->isSetRequest('delete')) {
-		$widget->deleteTag( $request->filter('trim', 'int')->get('mid', 0) );
+		$widget->delete();
 		$response->redirect(BYENDS_ADMIN_URL.'?tag');
 	}
 	/** edit tag */
 	elseif ($request->isSetGet('edit')) {
 		$mid = $request->filter('trim', 'int')->get('mid', 0);
 		
-		if ( $mid < 1) {
+		if ( !$mid) {
 			$response->redirect(BYENDS_ADMIN_URL.'?tag');
 		}
 		
 		/** update tag */
 		if ($request->isSetPost('update')) {
-			$name = $request->filter('trim')->get('name', '');
-			$slug = $request->filter('trim')->get('slug', '');
-		
-			$status = $widget->updateTag( $mid, $name, $slug );
-			if( $status === TRUE ) {
+			$status = $widget->update();
+			
+			if( $status === true ) {
 				$response->redirect(BYENDS_ADMIN_URL.'?tag');
 			} else {
 				$tag = array(
@@ -147,7 +156,7 @@ elseif ($request->isSetRequest('tag')) {
 			}
 		}
 		else {
-			$tag = $widget->getTag( $mid );
+			$tag = $widget->setCondtion(array('mid' => $mid))->select();
 			
 			if ( empty($tag)) {
 				$response->redirect(BYENDS_ADMIN_URL.'?tag');
@@ -161,7 +170,7 @@ elseif ($request->isSetRequest('tag')) {
 		$widget->setPerPage($options->adminPerPage);
 		$page = $request->get('page', 0);
 		$page = $page ? $page-1 : 0;
-		$tags = $widget->getTags($page);
+		$tags = $widget->setCondtion(array('page' => $page))->select();
 		$pages = $widget->getPages();
 		include( BYENDS_ADMIN_THEMES_DIR.'tags.html.php' );
 	}
@@ -176,9 +185,9 @@ elseif ($request->isSetRequest('post')) {
 		
 		/** insert post */
 		if ($request->isSetPost('insert')) {
-			$status = $widget->insert('publish');
+			$status = $widget->insert();
 		
-			if( $status === TRUE ) {
+			if( $status === true ) {
 				$response->redirect(BYENDS_ADMIN_URL.'?post');
 			}
 		}
@@ -196,7 +205,7 @@ elseif ($request->isSetRequest('post')) {
 	/** delete post */
 	elseif ($request->isSetRequest('delete')) {
 		$widget = Widget_Content::getInstance();
-		$widget->delete( $request->filter('trim', 'int')->cid );
+		$widget->delete();
 		$response->redirect(BYENDS_ADMIN_URL);
 	}
 	/** edit post */
@@ -213,12 +222,12 @@ elseif ($request->isSetRequest('post')) {
 		if ($request->isSetPost('update')) {
 			$status = $widget->update();
 		
-			if( $status === TRUE ) {
+			if( $status === true ) {
 				$response->redirect(BYENDS_ADMIN_URL);
 			} 
 		}
 		
-		$post = $widget->setCondtion(array('cid' => $cid, 'status' => NULL))->select();
+		$post = $widget->setCondtion(array('cid' => $cid, 'status' => null))->select();
 		
 		if (empty($post)) {
 			$response->redirect(BYENDS_ADMIN_URL);
@@ -232,7 +241,7 @@ elseif ($request->isSetRequest('post')) {
 		$page = $page ? $page - 1 : 0;
 		$widget = Widget_Content::getInstance();
 		$widget->setPerPage($options->adminPerPage);
-		$posts = $widget->setCondtion(array('page' => $page, 'status' => NULL))->select();
+		$posts = $widget->setCondtion(array('page' => $page, 'status' => null))->select();
 		$pages = $widget->getPages();
 	
 		include( BYENDS_ADMIN_THEMES_DIR.'posts.html.php' );
@@ -246,7 +255,7 @@ else {
 	$page = $page ? $page - 1 : 0;
 	$widget = Widget_Content::getInstance();
 	$widget->setPerPage($options->adminPerPage);
-	$posts = $widget->setCondtion(array('page' => $page, 'status' => NULL))->select();
+	$posts = $widget->setCondtion(array('page' => $page, 'status' => null))->select();
 	$pages = $widget->getPages();
 	
 	include( BYENDS_ADMIN_THEMES_DIR.'posts.html.php' );

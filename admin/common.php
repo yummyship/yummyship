@@ -9,12 +9,12 @@ if ( @file_exists(__DIR__.'/../install.php') ) {
 }
 
 require_once __DIR__.'/../config.inc.php';
-require_once 'Widget/Config.php';
+require_once 'init.php';
 
 $userInstance = Widget_User::getInstance();
 $userInstance->pass('administrator');
 
 $response = Byends_Response::getInstance();
-$request = Byends_Request::getInstance($options);
+$request = Byends_Request::getInstance();
 
 

@@ -4,7 +4,7 @@
  *
  * @author BYENDS (byends@gmail.com)
  * @package Byends_Validate
- * @copyright  Copyright (c) 2011 Byends (http://www.byends.com)
+ * @copyright  Copyright (c) 2012 Byends (http://www.byends.com)
  */
 
 /** 载入api支持 */
@@ -79,7 +79,8 @@ class Byends_Validate
      * @param string $key 数值键值
      * @return Byends_Validation
      */    
-    public function deleteRule($key) {
+    public function deleteRule($key)
+    {
     	if (array_key_exists($key, $this->_rules)) {
     		unset($this->_rules[$key]);
     	}
@@ -107,7 +108,7 @@ class Byends_Validate
      * @return	array
      * @throws  Byends_Validate_Exception
      */
-    public function run(array $data, $rules = NULL)
+    public function run(array $data, $rules = null)
     {
         $result = array();
         $this->_data = $data;
@@ -116,7 +117,7 @@ class Byends_Validate
         // Cycle through the rules and test for errors
         foreach ($rules as $key => $rules) {
             $this->_key = $key;
-            $data[$key] = (0 == strlen($data[$key])) ? NULL : $data[$key];
+            $data[$key] = (0 == strlen($data[$key])) ? null : $data[$key];
 
             foreach ($rules as $params) {
                 $method = $params[0];

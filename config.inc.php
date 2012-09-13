@@ -71,7 +71,7 @@ define( 'BYENDS_TABLE_FAVORITES',	$dbCfg['prefix'].'favorites' );
 /**
  * 用于调试
  */
-function deBug($str, $isContinue = FALSE, $varDump = TRUE, $style = 'color:red') {
+function deBug($str, $isContinue = false, $varDump = true, $style = 'color:red') {
 	if (is_array ( $str ) || is_object ( $str ) || is_resource ( $str )) {
 		echo '<pre>';
 		$varDump ? print_r ( $str ) : var_export ( $str );

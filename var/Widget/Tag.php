@@ -4,9 +4,9 @@
  *
  * @author BYENDS (byends@gmail.com)
  * @package Widget_Tag
- * @copyright  Copyright (c) 2011 Byends (http://www.byends.com)
+ * @copyright  Copyright (c) 2012 Byends (http://www.byends.com)
  */
-class Widget_Tag extends Byends_Widget
+class Widget_Tag extends Widget_Abstract
 {
 	protected $type = 'tag';
 	
@@ -14,15 +14,21 @@ class Widget_Tag extends Byends_Widget
 	 * 单例句柄
 	 * 
 	 * @access private
-	 * @var Widget_Content
+	 * @var Widget_Tag
 	 */
-	private static $_instance = NULL;
+	private static $_instance = null;
 	
 	public function __construct() 
 	{
 		parent::__construct();
 		
 		$this->perPage = $this->options->perPage;
+		$this->select = 'mid, name, slug, type, description, count';
+		$this->sCondition = array(
+				'mid' => 0,
+				'page' => 0,
+				'order' => array('mid', 'DESC')
+		);
 		
 	}
 	
@@ -34,7 +40,7 @@ class Widget_Tag extends Byends_Widget
 	 */
 	public static function getInstance()
 	{
-		if (NULL === self::$_instance) {
+		if (null === self::$_instance) {
 			self::$_instance = new Widget_Tag();
 		}
 	
@@ -42,55 +48,49 @@ class Widget_Tag extends Byends_Widget
 	}
 	
 	/**
-	 * 获取所有标签
-	 * @param integer $page
+	 * 获取Tag
 	 * @return array
 	 */
-	public function getTags($page) 
+	public function select()
 	{
-		$this->currentPage = abs( intval($page) );
-		$tags = $this->db->query(
-				'SELECT SQL_CALC_FOUND_ROWS
-				mid, name, slug, type, description, count
-			FROM
-				'.BYENDS_TABLE_METAS.'
-			WHERE
-				type = :1
-			ORDER BY
-				mid DESC
-			LIMIT
-				:2, :3',
-				$this->type,
-				$this->currentPage * $this->perPage,
-				$this->perPage
-		);
-		$this->totals = $this->db->foundRows();
-		$this->totalPages = ceil($this->totals / $this->perPage );
-	
-		return $tags;
-	}
-	
-	/**
-	 * 获取标签
-	 * @param integer $mid
-	 * @return array
-	 */
-	public function getTag( $mid ) 
-	{
-		$tag = $this->db->getRow(
-				'SELECT
-				mid, name, slug, type, description, count
-			FROM
-				'.BYENDS_TABLE_METAS.'
-			WHERE
-				type = :1 AND mid = :2',
-				$this->type, $mid
-		);
-		if( empty($tag) ) {
-			return array();
+		if ($this->sCondition['mid'] > 0) {
+			$tag = $this->db->getRow(
+					'SELECT
+						'.$this->select.'
+					FROM
+						'.BYENDS_TABLE_METAS.'
+					WHERE
+						type = :1 AND mid = :2',
+						$this->type, $this->sCondition['mid']
+			);
+			if( empty($tag) ) {
+				return array();
+			}
+			
+			return $tag;
 		}
-	
-		return $tag;
+		else {
+			$this->currentPage = $this->sCondition['page'];
+			$tags = $this->db->query(
+					'SELECT SQL_CALC_FOUND_ROWS
+						'.$this->select.'
+					FROM
+						'.BYENDS_TABLE_METAS.'
+					WHERE
+						type = :1
+					ORDER BY
+						'.$this->sCondition['order'][0].' '.$this->sCondition['order'][1].'
+					LIMIT
+						:2, :3',
+							$this->type,
+							$this->currentPage * $this->perPage,
+							$this->perPage
+			);
+			$this->totals = $this->db->foundRows();
+			$this->totalPages = ceil($this->totals / $this->perPage );
+			
+			return $tags;
+		}
 	}
 	
 	/**
@@ -98,19 +98,20 @@ class Widget_Tag extends Byends_Widget
 	 * @param integer $mid
 	 * @return string|boolean
 	 */
-	public function deleteTag( $mid )
+	public function delete()
 	{
+		$mid = $this->request->filter('trim', 'int')->get('mid', 0);
 		if( !$mid ) {
-			return FALSE;
+			return false;
 		}
 	
 		$mid = is_array($mid) ? $mid : array($mid);
 		foreach ($mid as $v) {
-			$this->delRelationships(0, $v, FALSE);
+			$this->delRelationships(0, $v, false);
 			$this->db->query( 'DELETE FROM '.BYENDS_TABLE_METAS.' WHERE type = :1 AND mid = :2', $this->type, $v );
 		}
 	
-		return TRUE;
+		return true;
 	}
 	
 	/**
@@ -122,9 +123,12 @@ class Widget_Tag extends Byends_Widget
 	 * @param string $description
 	 * @return string|boolean
 	 */
-	public function updateTag( $mid, $name, $slug, $description = NULL )
+	public function update()
 	{
-		if( $mid < 1 ) {
+		$mid = $this->request->filter('trim', 'int')->get('mid', 0);
+		$name = $this->request->filter('trim')->get('name', '');
+		$slug = $this->request->filter('trim')->get('slug', '');
+		if(!$mid) {
 			return 'mid-error';
 		}
 		
@@ -155,11 +159,15 @@ class Widget_Tag extends Byends_Widget
 				)
 		);
 		
-		return TRUE;
+		return true;
 	}
 	
-	
-	public function addTag() {
+	/**
+	 * 检测需要插入的标签
+	 * @return string|boolean
+	 */
+	public function insert() 
+	{
 		$name = $this->request->filter('trim')->name;
 		$slug = $this->request->filter('trim')->slug;
 		
@@ -182,7 +190,7 @@ class Widget_Tag extends Byends_Widget
 		
 		$mid = $this->insertTag($name, $slug);
 		
-		return TRUE;
+		return true;
 	}
 	
 	/**
@@ -192,7 +200,7 @@ class Widget_Tag extends Byends_Widget
 	 * @param string $slug
 	 * @return integer
 	 */
-	public function insertTag( $name, $slug) 
+	public function insertTag($name, $slug) 
 	{
 		$this->db->insertRow(
 				BYENDS_TABLE_METAS,
@@ -216,7 +224,7 @@ class Widget_Tag extends Byends_Widget
 	public function tagExists($mid)
 	{
 		$tag = $this->db->getRow( 'SELECT mid FROM '.BYENDS_TABLE_METAS.' WHERE type = :1 AND mid = :2 LIMIT 1', $this->type, $mid );
-		return $tag ? TRUE : FALSE;
+		return $tag ? true : false;
 	}
 	
 	/**
@@ -230,7 +238,7 @@ class Widget_Tag extends Byends_Widget
 	{
 		$condition = $mid == 0 ? 'type= :1 AND name = :2' : 'type= :1 AND name = :2 AND mid <> :3';
 		$tag = $this->db->getRow( 'SELECT mid FROM '.BYENDS_TABLE_METAS.' WHERE '.$condition.' LIMIT 1', $this->type, $name, $mid );
-		return $tag ? $tag['mid'] : FALSE;
+		return $tag ? $tag['mid'] : false;
 	}
 	
 	/**
@@ -242,7 +250,7 @@ class Widget_Tag extends Byends_Widget
 	{
 		$slug = Byends_Paragraph::slugName($name);
 		if (empty($slug)) {
-			return FALSE;
+			return false;
 		}
 	
 		return $slug;
@@ -259,7 +267,7 @@ class Widget_Tag extends Byends_Widget
 	{
 		$condition = $mid == 0 ? 'type = :1 AND slug = :2' : 'type = :1 AND slug = :2 AND mid <> :3';
 		$slug = $this->db->getRow( 'SELECT mid FROM '.BYENDS_TABLE_METAS.' WHERE '.$condition.' LIMIT 1', $this->type, $slug, $mid );
-		return $slug ? TRUE : FALSE;
+		return $slug ? true : false;
 	}
 	
 	/**
@@ -277,7 +285,7 @@ class Widget_Tag extends Byends_Widget
 		);
 		$this->refreshTag($mid);
 		
-		return TRUE;
+		return true;
 	}
 	
 
@@ -286,7 +294,8 @@ class Widget_Tag extends Byends_Widget
 	 * @param int $cid
 	 * @param int $mid
 	 */
-	public function delRelationships($cid = 0, $mid = 0, $refreshTag = true) {
+	public function delRelationships($cid = 0, $mid = 0, $refreshTag = true) 
+	{
 		$condition = array();
 	
 		if ($cid) {
@@ -322,7 +331,7 @@ class Widget_Tag extends Byends_Widget
 			}
 		}
 		
-		return TRUE;
+		return true;
 	}
 	
 	/**
@@ -362,7 +371,7 @@ class Widget_Tag extends Byends_Widget
 	 * @param integer $cid
 	 * @param string $tags
 	 */
-	public function setTags($cid, $tags, $isNew = FALSE)
+	public function setTags($cid, $tags, $isNew = false)
 	{
 		if (!$isNew) {
 			/** 取出已有tag */
@@ -404,7 +413,8 @@ class Widget_Tag extends Byends_Widget
 	 * @param int $mid
 	 * @return boolean
 	 */
-	public function refreshTag($mid) {
+	public function refreshTag($mid) 
+	{
 		$relate = $this->db->query(
 				'SELECT SQL_CALC_FOUND_ROWS
 					cid, mid
@@ -421,7 +431,7 @@ class Widget_Tag extends Byends_Widget
 				array( 'count' => $count)
 		);
 		
-		return TRUE;
+		return true;
 	}
 	
 	/**

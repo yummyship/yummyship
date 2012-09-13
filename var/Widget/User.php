@@ -4,9 +4,9 @@
  *
  * @author BYENDS (byends@gmail.com)
  * @package Widget_User
- * @copyright  Copyright (c) 2011 Byends (http://www.byends.com)
+ * @copyright  Copyright (c) 2012 Byends (http://www.byends.com)
  */
-class Widget_User extends Byends_Widget 
+class Widget_User extends Widget_Abstract 
 {
 	/**
 	 * 是否已经登录
@@ -14,7 +14,7 @@ class Widget_User extends Byends_Widget
 	 * @access private
 	 * @var boolean
 	 */
-	private $_hasLogin = NULL;
+	private $_hasLogin = null;
 	
 	/**
 	 * 单例句柄
@@ -22,7 +22,7 @@ class Widget_User extends Byends_Widget
 	 * @access private
 	 * @var Widget_User
 	 */
-	private static $_instance = NULL;	
+	private static $_instance = null;	
 	/** 
 	 * 用户组
 	 *
@@ -39,14 +39,25 @@ class Widget_User extends Byends_Widget
 		'delete'  => 'delete'
 	);
 	
-	public $user = NULL;
-	public $notice = NULL;
+	public $user = null;
+	public $notice = null;
 	
 	public function __construct() 
 	{
 		parent::__construct();
 		
+		$this->perPage = $this->options->perPage;
 		$this->notice = new Byends_Notice();
+		$this->select = 'uid, name, password, mail, url, created, logged, `group`, authCode, 
+					description, avatar, notify, status';
+		$this->sCondition = array(
+				'params'      => array(),
+				'page'        => 0,
+				'status'      => 'normal',
+				'processUser' => true,
+				'object'      => true,
+				'order'       => array('uid', 'DESC')
+		);
 	}
 	
 	/**
@@ -57,7 +68,7 @@ class Widget_User extends Byends_Widget
 	 */
 	public static function getInstance()
 	{
-		if (NULL === self::$_instance) {
+		if (null === self::$_instance) {
 			self::$_instance = new Widget_User();
 		}
 	
@@ -65,64 +76,56 @@ class Widget_User extends Byends_Widget
 	}
 	
 	/**
-	 * 获取指定状态的所有用户
-	 * @param string $page
-	 * @param array $order
-	 * @param string $status
+	 * 获取用户
 	 * @return array
 	 */
-	public function getUsers($page, $order = array('uid', 'DESC'), $status  = 'normal')
+	public function select()
 	{
-		$condition = $status ? ' AND status = :1 ' : '';
-		$this->currentPage = abs( intval($page) );
-		$users = $this->db->query(
-				'SELECT SQL_CALC_FOUND_ROWS
-				uid, name, password, mail, url, created, logged, `group`, authCode, description, avatar, notify, status
-			FROM
-				'.BYENDS_TABLE_USERS.'
-			WHERE 
-				1 = 1 '.$condition.'
-			ORDER BY
-				'.$order[0].' '.$order[1].'
-			LIMIT
-				:2, :3',
-				$status,
-				$this->currentPage * $this->perPage,
-				$this->perPage
-		);
-		$this->totals = $this->db->foundRows();
-		$this->totalPages = ceil($this->totals / $this->perPage );
-		foreach( array_keys($users) as $i ) {
-			$this->processUser($users[$i]);
-		}
-		return $users;
-	}
-	
-	/**
-	 * 获取单个用户
-	 * @param integer $uid
-	 * @param string $status
-	 * @return array
-	 */
-	public function getUser($params = array(), $status = 'normal', $processUser = TRUE, $object = TRUE)
-	{
-		$params = implode( ' AND ', $this->db->quoteArray( $params ) );
-		$params .= $status ? ' AND status = :1 ' : '';
-		$user = $this->db->getRow(
+		if ($this->sCondition['params']) {
+			$params = implode(' AND ', $this->db->quoteArray($this->sCondition['params']));
+			$params .= $this->sCondition['status'] ? ' AND status = :1 ' : '';
+			$user = $this->db->getRow(
 				'SELECT
-				uid, name, password, mail, url, created, logged, `group`, authCode, description, avatar, notify, status
-			 FROM
-				 '.BYENDS_TABLE_USERS.' WHERE '.$params, $status );
-	
-		if ( empty($user) ) {
-			return array();
+					'.$this->select.'
+				 FROM
+				 	'.BYENDS_TABLE_USERS.' WHERE '.$params, $this->sCondition['status']
+			);
+			
+			if ( empty($user) ) {
+				return array();
+			}
+			
+			if ($this->sCondition['processUser']) {
+				$this->processUser($user, $this->sCondition['object']);
+			}
+			
+			return $user;
 		}
-		
-		if ($processUser) {
-			$this->processUser($user, $object);
+		else {
+			$condition = $this->sCondition['status'] ? ' AND status = :1 ' : '';
+			$this->currentPage = $this->sCondition['page'];
+			$users = $this->db->query(
+					'SELECT SQL_CALC_FOUND_ROWS
+						'.$this->select.'
+					FROM
+						'.BYENDS_TABLE_USERS.'
+					WHERE
+						1 = 1 '.$condition.'
+					ORDER BY
+						'.$this->sCondition['order'][0].' '.$this->sCondition['order'][1].'
+					LIMIT
+						:2, :3',
+						$this->sCondition['status'],
+						$this->currentPage * $this->perPage,
+						$this->perPage
+			);
+			$this->totals = $this->db->foundRows();
+			$this->totalPages = ceil($this->totals / $this->perPage );
+			foreach( array_keys($users) as $i ) {
+				$this->processUser($users[$i]);
+			}
+			return $users;
 		}
-		
-		return $user;
 	}
 	
 	/**
@@ -165,7 +168,13 @@ class Widget_User extends Byends_Widget
 		}
 		
 		Byends_Cookie::delete('__byends_remember_mail', BYENDS_BASE_URL);
-		$user = $this->getUser(array('mail' => $this->request->filter('trim')->mail), NULL, FALSE); 
+		$condition = array(
+				'params'      => array('mail' => $this->request->filter('trim')->mail),
+				'status'      => null,
+				'processUser' => false,
+				'object'      => true,
+		);
+		$user = $this->setCondtion($condition)->select();
 		$valid = false;
 		$errorInfo = 'Email or Password Invalid!';
 		
@@ -186,8 +195,8 @@ class Widget_User extends Byends_Widget
 						array( 'logged' => $this->gmtTimeStamp, 'authCode' => $authCode )
 					);
 				
-					$this->processUser($user, FALSE, TRUE);
-					$valid = TRUE;
+					$this->processUser($user, false, true);
+					$valid = true;
 				}
 			}
 			else {
@@ -198,12 +207,12 @@ class Widget_User extends Byends_Widget
 		if (!$valid) {
 			Byends_Cookie::set('__byends_remember_mail', $this->request->filter('trim')->mail, 0, BYENDS_BASE_URL);
 			$notice = new Byends_Notice();
-			$notice->set($errorInfo, NULL, 'error');
+			$notice->set($errorInfo, null, 'error');
 			$this->response->goBack();
 			$this->response->goBack('?referer=' . urlencode($this->request->referer));
 		}
 		
-		if (NULL != $this->request->referer) {
+		if (null != $this->request->referer) {
 			$this->response->redirect($this->request->referer);
 // 		} else if ($this->pass('administrator', TURE)) {
 // 			$this->response->redirect(BYENDS_ADMIN_URL);
@@ -238,19 +247,25 @@ class Widget_User extends Byends_Widget
 	 */
 	public function hasLogin()
 	{
-		if (NULL !== $this->_hasLogin) {
+		if (null !== $this->_hasLogin) {
 			return $this->_hasLogin;
 		} else {
 			$cookieUid = Byends_Cookie::get('__byends_uid');
-			if (NULL !== $cookieUid) {
+			if (null !== $cookieUid) {
 				/** 验证登陆 */
-				$user = $this->getUser(array('uid' => intval($cookieUid)), 'normal', FALSE); 
+				$condition = array(
+						'params'      => array('uid' => intval($cookieUid)),
+						'status'      => 'normal',
+						'processUser' => false,
+						'object'      => true,
+				);
+				$user = $this->setCondtion($condition)->select();
 				
 				if ($user) {
 					$cookieAuthCode = Byends_Cookie::get('__byends_authCode');
 					
 					if (Byends_Paragraph::hashValidate($user['authCode'], $cookieAuthCode)) {
-						$this->processUser($user, TRUE, TRUE);
+						$this->processUser($user, true, true);
 						
 						return $this->_hasLogin;
 					}
@@ -259,7 +274,7 @@ class Widget_User extends Byends_Widget
 				$this->logout();
 			}
 	
-			return ($this->_hasLogin = FALSE);
+			return ($this->_hasLogin = false);
 		}
 	}
 	
@@ -267,7 +282,7 @@ class Widget_User extends Byends_Widget
 	 * 修改用户信息
 	 * @return string|boolean
 	 */
-	public function updateUser() 
+	public function update() 
 	{
 		$user = $this->request
 				->filter('trim')
@@ -326,14 +341,14 @@ class Widget_User extends Byends_Widget
 			array( 'uid' => $user['uid'] ),
 			$userData
 		);
-		return TRUE;
+		return true;
 	}
 	
 	/**
 	 * 添加用户
 	 * @return string|boolean
 	 */
-	public function addUser()
+	public function insert()
 	{
 		$user = $this->request
 				->filter('trim')
@@ -392,27 +407,31 @@ class Widget_User extends Byends_Widget
 			)
 		);
 		
-		return TRUE;
+		return true;
 	}
 	
 	/**
 	 * 删除用户，只是更改状态，并非真正意义上的删除
 	 */
-	public function deleteUser( $uid )
+	public function delete()
 	{
+		$uid = $this->request->filter('trim', 'int')->get('uid', 0);
+		if (!$uid) {
+			return false;
+		}
 		$this->db->updateRow(
 				BYENDS_TABLE_USERS,
 				array( 'uid' => $uid ),
 				array( 'status' => 'delete' )
 		);
 	
-		return TRUE;
+		return true;
 	}
 	
 	/**
 	 * 删除用户
 	 */
-	public function realDeleteUser( $uid )
+	public function realDelete( $uid )
 	{
 		$posts = $this->db->query( 'SELECT cid FROM '.BYENDS_TABLE_POSTS.' WHERE uid = :1', $uid );
 		foreach( $posts as $p ) {
@@ -420,7 +439,7 @@ class Widget_User extends Byends_Widget
 		}
 	
 		$this->db->query( 'DELETE FROM '.BYENDS_TABLE_USERS.' WHERE uid = :1', $uid );
-		return TRUE;
+		return true;
 	}
 	
 	/**
@@ -431,25 +450,25 @@ class Widget_User extends Byends_Widget
 	 * @param boolean $return 是否为返回模式
 	 * @return boolean
 	 */
-	public function pass($group, $return = FALSE)
+	public function pass($group, $return = false)
 	{
 		if ($this->hasLogin()) {
 			if (array_key_exists($group, $this->groups) && $this->groups[$this->user->group] <= $this->groups[$group]) {
-				return TRUE;
+				return true;
 			}
 		} else {
             if ($return) {
-                return FALSE;
+                return false;
             } else {
                 //防止循环重定向
                 $this->response->redirect(BYENDS_AUTH_SIGNIN_URL .
                 (0 === strpos($this->request->getReferer(), BYENDS_AUTH_SIGNIN_URL) ? '' :
-                '?referer=' . urlencode($this->request->makeUriByRequest())), FALSE);
+                '?referer=' . urlencode($this->request->makeUriByRequest())), false);
             }
         }
 		
 		if ($return) {
-            return FALSE;
+            return false;
         } else {
             $this->response->redirect(BYENDS_SITE_URL.'404');
         }
@@ -460,7 +479,8 @@ class Widget_User extends Byends_Widget
 	 * 
 	 * @param array $user
 	 */
-	protected function processUser(&$user, $object = FALSE, $hasLogin = FALSE) {
+	protected function processUser(&$user, $object = false, $hasLogin = false) 
+	{
 		$user['avatar'] = is_file(__BYENDS_ROOT_DIR__.__BYENDS_AVATARS_DIR__.$user['avatar']) ? 
 						  BYENDS_AVATARS_STATIC_URL.$user['avatar'] : BYENDS_NO_AVATAR_STATIC_URL;
 		$user['created'] = Byends_Date::timeStamp( $user['created'] );
@@ -469,7 +489,7 @@ class Widget_User extends Byends_Widget
 		if ($hasLogin) {
 			$this->user = (object)$user;
 			$this->uid = $this->user->uid;
-			$this->_hasLogin = TRUE;
+			$this->_hasLogin = true;
 		}
 		
 		$user = $object ? (object)$user : $user;

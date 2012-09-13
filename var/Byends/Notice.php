@@ -4,7 +4,7 @@
  *
  * @author BYENDS (byends@gmail.com)
  * @package Byends_Notice
- * @copyright  Copyright (c) 2011 Byends (http://www.byends.com)
+ * @copyright  Copyright (c) 2012 Byends (http://www.byends.com)
  */
 
 class Byends_Notice
@@ -52,14 +52,14 @@ class Byends_Notice
      */
     public function __construct()
     {
-        if (NULL !== Byends_Cookie::get('__byends_notice')) {
+        if (null !== Byends_Cookie::get('__byends_notice')) {
             $this->noticeType = Byends_Cookie::get('__byends_notice_type');
             $this->push(Byends_Cookie::get('__byends_notice'));
             Byends_Cookie::delete('__byends_notice', BYENDS_BASE_URL);
             Byends_Cookie::delete('__byends_notice_type', BYENDS_BASE_URL);
         }
 
-        if (NULL !== Byends_Cookie::get('__byends_notice_highlight')) {
+        if (null !== Byends_Cookie::get('__byends_notice_highlight')) {
             $this->highlight = Byends_Cookie::get('__byends_notice_highlight');
             Byends_Cookie::delete('__byends_notice_highlight', BYENDS_BASE_URL);
         }
@@ -128,7 +128,7 @@ class Byends_Notice
      */
     public function display($name, $format = '%s')
     {
-        echo empty($this->row[$name]) ? NULL :
+        echo empty($this->row[$name]) ? null :
         ((false === strpos($format, '%s')) ? $format : sprintf($format, $this->row[$name]));
     }
 
@@ -164,7 +164,7 @@ class Byends_Notice
      * @param string $type 提示类型
      * @return array
      */
-    public function set($name, $value = NULL, $type = 'notice')
+    public function set($name, $value = null, $type = 'notice')
     {
         $notice = array();
 

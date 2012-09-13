@@ -4,18 +4,18 @@
  *
  * @author BYENDS (byends@gmail.com)
  * @package Widget_Content
- * @copyright  Copyright (c) 2011 Byends (http://www.byends.com)
+ * @copyright  Copyright (c) 2012 Byends (http://www.byends.com)
  */
-class Widget_Content extends Byends_Widget
+class Widget_Content extends Widget_Abstract
 {
-	protected $cid = NULL;
+	protected $cid = null;
 	protected $postModified = 0;
 	
-	protected $coverHash = NULL;
-	protected $coverExt= NULL;
-	protected $coverSize = NULL;
+	protected $coverHash = null;
+	protected $coverExt= null;
+	protected $coverSize = null;
 	
-	protected $stepImageUrl = NULL;
+	protected $stepImageUrl = null;
 	
 	public $type = array(
 		'post' => 'post',
@@ -30,9 +30,9 @@ class Widget_Content extends Byends_Widget
 		'delete'  => 'delete'
 	);
 	
-	public $instanceTag = NULL;
-	public $instanceUser = NULL;
-	public $instanceUpload = NULL;
+	public $instanceTag = null;
+	public $instanceUser = null;
+	public $instanceUpload = null;
 	
 	/**
 	 * 单例句柄
@@ -40,7 +40,7 @@ class Widget_Content extends Byends_Widget
 	 * @access private
 	 * @var Widget_Content
 	 */
-	private static $_instance = NULL;
+	private static $_instance = null;
 	
 	public function __construct() 
 	{
@@ -55,10 +55,9 @@ class Widget_Content extends Byends_Widget
 		}
 		$this->instanceUpload = Widget_Upload::getInstance();
 		
-		$this->select = '
-				c.cid, c.title, c.slug, c.uid, c.created, c.modified, 
-				c.coverHash, c.coverExt, c.coverSize, c.brief, c.ingredients, c.steps, c.tips, 
-				c.type, c.status, c.allowComment, c.commentsNum, c.favoritesNum, c.views';
+		$this->select = 'c.cid, c.title, c.slug, c.uid, c.created, c.modified, 
+					c.coverHash, c.coverExt, c.coverSize, c.brief, c.ingredients, c.steps, c.tips, 
+					c.type, c.status, c.allowComment, c.commentsNum, c.favoritesNum, c.views';
 		
 		$this->sCondition = array(
 				'cid' => 0,
@@ -78,7 +77,7 @@ class Widget_Content extends Byends_Widget
 	 */
 	public static function getInstance()
 	{
-		if (NULL === self::$_instance) {
+		if (null === self::$_instance) {
 			self::$_instance = new Widget_Content();
 		}
 	
@@ -89,7 +88,8 @@ class Widget_Content extends Byends_Widget
 	 * 获取内容
 	 * @return array
 	 */
-	public function select() {
+	public function select() 
+	{
 		if ($this->sCondition['cid'] > 0) {
 			$condition = $this->sCondition['status'] ? ' AND c.status = :3 ' : '';
 			$content = $this->db->getRow(
@@ -199,7 +199,8 @@ class Widget_Content extends Byends_Widget
 	 * @access public
 	 * @return array
 	 */
-	public function selectRelated($cid, $tagIdStr, $num = 9) {
+	public function selectRelated($cid, $tagIdStr, $num = 9) 
+	{
 		$contents = $this->db->query(
 			'SELECT DISTINCT 
 				'.$this->select.'
@@ -233,7 +234,7 @@ class Widget_Content extends Byends_Widget
 	 * @access public
 	 * @return string
 	 */
-	public function thePrev($default = NULL) 
+	public function thePrev($default = null) 
 	{
 		$content = $this->db->getRow(
 			'SELECT 
@@ -264,7 +265,7 @@ class Widget_Content extends Byends_Widget
 	 * @access public
 	 * @return string
 	 */
-	public function theNext($default = NULL) 
+	public function theNext($default = null) 
 	{
 		$content = $this->db->getRow(
 			'SELECT 
@@ -292,10 +293,11 @@ class Widget_Content extends Byends_Widget
 	 * @access public
 	 * @return string
 	 */
-	public function delete( $cid ) 
+	public function delete() 
 	{
-		if (empty($cid) || $cid < 1) {
-			return FALSE;
+		$cid =  $this->request->filter('trim', 'int')->get('cid', 0);
+		if (!$cid) {
+			return false;
 		}
 		
 		$content = $this->db->getRow(
@@ -325,9 +327,9 @@ class Widget_Content extends Byends_Widget
 		
 		$this->instanceTag->delRelationships($cid);
 		$instanceCook = Widget_Cook::getInstance();
-		$instanceCook->doFavorite($cid);
+		$instanceCook->doFavorite($cid, 'unsaved');
 		$this->db->query( 'DELETE FROM '.BYENDS_TABLE_CONTENTS.' WHERE cid = :1', $cid );
-		return TRUE;
+		return true;
 	}
 	
 	/**
@@ -362,7 +364,7 @@ class Widget_Content extends Byends_Widget
 	 * 插入 content
 	 * @return boolean
 	 */
-	public function insert($status = 'waiting') 
+	public function insert() 
 	{
 		if( !$this->uid ) {
 			return 'not-logged-in';
@@ -379,10 +381,11 @@ class Widget_Content extends Byends_Widget
 		$content = $this->request->filter('trim')->from( 'created', 'title', 'cover', 
 				'brief', 'ingredients', 'dosage', 'steps', 'stepsImage', 'tips' );
 		$created = $content['created'] ? strtotime($content['created']) : $this->timeStamp;
+		$content['status'] = 'publish';
 		
 		//处理 cover
 		$result = $this->coverHandle($content['cover'], $created);
-		if( $result !== TRUE ) {
+		if( $result !== true ) {
 			return $result;
 		}
 		
@@ -437,7 +440,7 @@ class Widget_Content extends Byends_Widget
 				'steps' => serialize($steps),
 				'tips' => (string)$content['tips'],
 				'type' => 'post',
-				'status' => $status,
+				'status' => $content['status'],
 				'allowComment' => 0,
 				'commentsNum' => 0,
 				'favoritesNum' => 0,
@@ -445,7 +448,7 @@ class Widget_Content extends Byends_Widget
 		));
 		
 		$cid = $this->db->insertId();
-		$insertTags = $this->instanceTag->setTags($cid, $tempIng, TRUE);
+		$insertTags = $this->instanceTag->setTags($cid, $tempIng, true);
 		$ingredients = array();
 		foreach ($insertTags as $k => $v) {
 			$ingredients[$v] = $tempDosage[$k];
@@ -455,7 +458,7 @@ class Widget_Content extends Byends_Widget
 				array('cid' => $cid),
 				array('ingredients' => serialize($ingredients))
 		);
-		return TRUE;
+		return true;
 	}
 	
 	/**
@@ -483,14 +486,14 @@ class Widget_Content extends Byends_Widget
 		$content = $this->request->filter('trim')->from( 'cid', 'modified', 'title', 'cover',
 				'brief', 'ingredients', 'dosage', 'steps', 'stepsImage', 'tips' );
 		$modified = $content['modified'] ? strtotime($content['modified']) : $this->timeStamp;
-		$post = $this->setCondtion(array('cid' => $cid, 'status' => NULL))->select();
+		$post = $this->setCondtion(array('cid' => $cid, 'status' => null))->select();
 		$data['modified'] = Byends_Date::gmtTime($modified);
 		
 		
 		//处理 cover
 		if ($post['coverHash'] <> $content['cover']) {
 			$result = $this->coverHandle($content['cover'], $modified);
-			if( $result !== TRUE ) {
+			if( $result !== true ) {
 				return $result;
 			}
 			$data['coverHash'] = $this->coverHash;
@@ -560,7 +563,7 @@ class Widget_Content extends Byends_Widget
 				$data
 		);
 		
-		return TRUE;
+		return true;
 	}
 	
 	/**
@@ -571,7 +574,7 @@ class Widget_Content extends Byends_Widget
 	public function updateViews($cid) 
 	{
 		$this->db->query( 'UPDATE '.BYENDS_TABLE_CONTENTS.' SET views = views + 1 WHERE cid = :1', $cid );
-		return TRUE;
+		return true;
 	}
 	
 	/**
@@ -594,9 +597,9 @@ class Widget_Content extends Byends_Widget
 		$content['height'] = $h;
 		$content['viewsWord'] = $this->viewsWord($content['views']);
 		$content['dateWord'] = Byends_Date::dateWord($content['modified'], $this->timeStamp, $this->options->lang);
-		$content['favorite'] = FALSE;
+		$content['favorite'] = false;
 		
-		if (NULL !== $this->uid) {
+		if (null !== $this->uid) {
 			$instanceCook = Widget_Cook::getInstance();
 			$content['favorite'] = $instanceCook->favoriteExists($content['cid']);
 		}
@@ -625,7 +628,8 @@ class Widget_Content extends Byends_Widget
 	 * 处理封面图
 	 * @param string $coverPath
 	 */
-	public function coverHandle($cover, $created) {
+	public function coverHandle($cover, $created) 
+	{
 		$ext = strtolower(substr($cover, strrpos($cover, '.') + 1));
 		$coverPath = __BYENDS_ROOT_DIR__.__BYENDS_TEMPS_DIR__ . $cover;
 		$coverDir  = __BYENDS_ROOT_DIR__.__BYENDS_COVERS_DIR__ . date('Y/m', $created);
@@ -648,26 +652,29 @@ class Widget_Content extends Byends_Widget
 		$this->instanceUpload->createThumb($coverPath, $coverDir, 
 				$this->options->imageConfig['coverSize'][0], 
 				$coverHeight, 
-				$this->options->imageConfig['jpegQuality']);
+				$this->options->imageConfig['jpegQuality'],
+				$this->options->imageConfig['cropType']);
 		
 		$this->instanceUpload->createThumb($coverPath, $thumbDir, 
 				$this->options->imageConfig['thumbSize'][0], 
 				$this->options->imageConfig['thumbSize'][1], 
-				$this->options->imageConfig['jpegQuality']);
+				$this->options->imageConfig['jpegQuality'],
+				$this->options->imageConfig['cropType']);
 		
 		$this->coverHash = $coverHash;
 		$this->coverExt = $ext;
 		list($coverWidth, $coverHeight) = getimagesize( $coverDir );
 		$this->coverSize = $coverWidth.'|'.$coverHeight;
 		
-		return TRUE;
+		return true;
 	}
 	
 	/**
 	 * 处理步骤图
 	 * @param string $coverPath
 	 */
-	public function stepImageHandle($stepImage, $created) {
+	public function stepImageHandle($stepImage, $created) 
+	{
 		$ext = strtolower(substr($stepImage, strrpos($stepImage, '.') + 1));
 		$stepImagePath = __BYENDS_ROOT_DIR__.__BYENDS_TEMPS_DIR__ . $stepImage;
 		$stepImageDir   = __BYENDS_ROOT_DIR__.__BYENDS_STEPS_DIR__ . date('Y/m', $created);
@@ -688,10 +695,11 @@ class Widget_Content extends Byends_Widget
 		$this->instanceUpload->createThumb($stepImagePath, $stepImageDir,
 				$this->options->imageConfig['stepSize'][0],
 				$stepHeight,
-				$this->options->imageConfig['jpegQuality']);
+				$this->options->imageConfig['jpegQuality'],
+				$this->options->imageConfig['cropType']);
 		
 		$this->stepImageUrl = BYENDS_STEPS_STATIC_URL . date('Y/m', $created) . '/' . $fileName;
-		return TRUE;
+		return true;
 	}
 	
 }

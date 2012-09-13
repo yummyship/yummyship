@@ -12,6 +12,12 @@
 	$rewrite = '<option value="0" '.($options->rewrite == 0 ? 'selected="true"' : '').'>关闭</option>';
 	$rewrite .= '<option value="1" '.($options->rewrite == 1 ? 'selected="true"' : '').'>启用</option>';
 	
+	$theme = '';
+	foreach ($widget->themesList() as $k => $v) {
+		$selected = $v == $options->theme ? 'selected="true"' : '';
+		$theme .= '<option value="'.$v.'" '.$selected.'>'.$v.'</option>';
+	}
+	
 	$timeZone = '';
 	foreach( Byends_Date::$timezoneList as $k => $v) {
 		$selected = $k == $options->timezone ? 'selected="true"' : '';
@@ -50,7 +56,7 @@
 		<dd><select name="options[rewrite]"><?php echo $rewrite; ?></select></dd>
 		
 		<dt>Theme:</dt>
-		<dd><input type="text" name="options[theme]" class="long" value="<?php echo $options->theme; ?>"/></dd>
+		<dd><select name="options[theme]"><?php echo $theme; ?></select></dd>
 		
 		<dt>Timezone:</dt>
 		<dd><select name="options[timezone]"><?php echo $timeZone; ?></select></dd>

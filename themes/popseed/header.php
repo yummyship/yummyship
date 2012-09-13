@@ -54,9 +54,9 @@ else if( $current == $options->seed || $current == 'zoom') {
 			</li>
 		</ul>
 		<ul id="auth" class="clearfix">
-			<?php if (NULL !== $widget->uid) {?>
+			<?php if (null !== $widget->uid) {?>
 			<li><img src="<?php echo $widget->user->avatar; ?>" /><a href="<?php echo BYENDS_COOK_URL.$widget->user->name; ?>" ><?php echo $widget->user->name; ?></a></li>
-			<?php if ($widget->instanceUser->pass('administrator', TRUE)) {?>
+			<?php if ($widget->instanceUser->pass('administrator', true)) {?>
 			<li><a href="<?php echo BYENDS_ADMIN_URL; ?>" >AdminControl</a></li>
 			<?php }?>
 			<li class="last"><a href="<?php echo BYENDS_AUTH_SIGNOUT_URL; ?>" >Sign out</a></li>
@@ -65,7 +65,7 @@ else if( $current == $options->seed || $current == 'zoom') {
 			else {
 			?>
 			<li class="last"><a href="<?php echo BYENDS_AUTH_SIGNIN_URL; ?>">Sign in</a></li>
-			<?php if (FALSE) { ?>
+			<?php if (false) { ?>
 			<li class="last"><a href="<?php echo BYENDS_AUTH_SIGNUP_URL; ?>">Sign up</a></li>
 			<?php } }?>
 		</ul>

@@ -14,7 +14,7 @@ var
 domain = '<?php echo str_replace('www.', '', $options->domain); ?>',
 siteUrl = '<?php echo BYENDS_SITE_URL; ?>',
 signInUrl = '<?php echo BYENDS_AUTH_SIGNIN_URL; ?>',
-signedIn = <?php echo (NULL !== $widget->uid ? 'true' : 'false'); ?>,
+signedIn = <?php echo (null !== $widget->uid ? 'true' : 'false'); ?>,
 seedAction = '<?php echo $current; ?>',
 seedName = '<?php echo $options->seed; ?>',
 nextRecipe = <?php echo $options->perPage; ?>,

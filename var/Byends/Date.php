@@ -4,7 +4,7 @@
  *
  * @author BYENDS (byends@gmail.com)
  * @package Byends_Date
- * @copyright  Copyright (c) 2011 Byends (http://www.byends.com)
+ * @copyright  Copyright (c) 2012 Byends (http://www.byends.com)
  */
 class Byends_Date
 {
@@ -70,7 +70,7 @@ class Byends_Date
     public $timeStamp = 0;
 
     /**
-     * 初始化参数
+     * 构造函数,初始化参数
      *
      * @access public
      * @param integer $gmtTime GMT时间戳

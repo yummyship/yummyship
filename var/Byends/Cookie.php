@@ -4,7 +4,7 @@
  *
  * @author BYENDS (byends@gmail.com)
  * @package Byends_Cookie
- * @copyright  Copyright (c) 2011 Byends (http://www.byends.com)
+ * @copyright  Copyright (c) 2012 Byends (http://www.byends.com)
  */
 
 /** 载入api支持 */
@@ -51,7 +51,7 @@ class Byends_Cookie
      * @param string $default 默认的参数
      * @return mixed
      */
-    public static function get($key, $default = NULL)
+    public static function get($key, $default = null)
     {
         $key = self::$_prefix . $key;
         $value = isset($_COOKIE[$key]) ? $_COOKIE[$key] : (isset($_POST[$key]) ? $_POST[$key] : $default);
@@ -68,7 +68,7 @@ class Byends_Cookie
      * @param string $url 路径(可以是域名,也可以是地址)
      * @return void
      */
-    public static function set($key, $value, $expire = 0, $url = NULL)
+    public static function set($key, $value, $expire = 0, $url = null)
     {
         $path = '/';
         $key = self::$_prefix . $key;
@@ -76,7 +76,7 @@ class Byends_Cookie
             $parsed = parse_url($url);
 
             /** 在路径后面强制加上斜杠 */
-            $path = empty($parsed['path']) ? '/' : Byends_Paragraph::url(NULL, $parsed['path']);
+            $path = empty($parsed['path']) ? '/' : Byends_Paragraph::url(null, $parsed['path']);
         }
 
         /** 对数组型COOKIE的写入支持 */
@@ -96,7 +96,7 @@ class Byends_Cookie
      * @param string $key 指定的参数
      * @return void
      */
-    public static function delete($key, $url = NULL)
+    public static function delete($key, $url = null)
     {
         $key = self::$_prefix . $key;
         if (!isset($_COOKIE[$key])) {
@@ -108,7 +108,7 @@ class Byends_Cookie
             $parsed = parse_url($url);
 
             /** 在路径后面强制加上斜杠 */
-            $path = empty($parsed['path']) ? '/' : Byends_Paragraph::url(NULL, $parsed['path']);
+            $path = empty($parsed['path']) ? '/' : Byends_Paragraph::url(null, $parsed['path']);
         }
 
         /** 对数组型COOKIE的删除支持 */

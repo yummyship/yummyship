@@ -4,7 +4,7 @@
  *
  * @author BYENDS (byends@gmail.com)
  * @package Widget_Upload
- * @copyright  Copyright (c) 2011 Byends (http://www.byends.com)
+ * @copyright  Copyright (c) 2012 Byends (http://www.byends.com)
  */
 class Widget_Upload extends Byends_Widget
 {
@@ -13,7 +13,7 @@ class Widget_Upload extends Byends_Widget
 	private $docType   = array('txt', 'doc', 'docx', 'xls', 'xlsx', 
 								'ppt', 'pptx', 'zip', 'rar', 'pdf');
 	private $uploadType = 'steps';
-	private $status = FALSE;
+	private $status = false;
 	
 	/**
 	 * 单例句柄
@@ -21,7 +21,7 @@ class Widget_Upload extends Byends_Widget
 	 * @access private
 	 * @var Widget_Upload
 	 */
-	private static $_instance = NULL;
+	private static $_instance = null;
 	
 	public function __construct()
 	{
@@ -36,7 +36,7 @@ class Widget_Upload extends Byends_Widget
 	 */
 	public static function getInstance()
 	{
-		if (NULL === self::$_instance) {
+		if (null === self::$_instance) {
 			self::$_instance = new Widget_Upload();
 		}
 	
@@ -128,7 +128,7 @@ class Widget_Upload extends Byends_Widget
 			$file['size'] = filesize($path);
 		}
 		
-		$this->status = TRUE;
+		$this->status = true;
 		
 		return array(
 				'permanlink' => BYENDS_TEMPS_STATIC_URL.$fileName,
@@ -146,7 +146,7 @@ class Widget_Upload extends Byends_Widget
 	 * @param string $target
 	 * @return boolean
 	 */
-	public function fetch($url, $referer = NULL)
+	public function fetch($url, $referer = null)
 	{
 		if (!$this->mkdirr(dirname(__BYENDS_ROOT_DIR__.__BYENDS_TEMPS_DIR__))) {
 			return 'Make dir failed.';
@@ -205,7 +205,7 @@ class Widget_Upload extends Byends_Widget
 			);
 	
 			$context = stream_context_create( $opts );
-			$fpRemote = @fopen( $url, 'r', FALSE, $context );
+			$fpRemote = @fopen( $url, 'r', false, $context );
 			if( !$fpRemote ) {
 				fclose( $fpLocal );
 				return 'Fetch image failed.';
@@ -224,7 +224,7 @@ class Widget_Upload extends Byends_Widget
 			return 'duplicate-image';
 		}
 		
-		$this->status = TRUE;
+		$this->status = true;
 		
 		return array(
 				'permanlink' => BYENDS_TEMPS_STATIC_URL.$fileName,
@@ -244,7 +244,7 @@ class Widget_Upload extends Byends_Widget
 	 * @param integer $quality
 	 * @return boolean
 	 */
-	public function createThumb($imgPath, $thumbPath, $thumbWidth, $thumbHeight, $quality)
+	public function createThumb($imgPath, $thumbPath, $thumbWidth, $thumbHeight, $quality, $cropType)
 	{
 		// Get image type and size and check if we can handle it
 		list( $srcWidth, $srcHeight, $type ) = getimagesize( $imgPath );
@@ -252,14 +252,14 @@ class Widget_Upload extends Byends_Widget
 				$srcWidth < 1 //|| $srcWidth > 4096
 				|| $srcHeight < 1 //|| $srcHeight > 4096
 		) {
-			return FALSE;
+			return false;
 		}
 	
 		switch( $type ) {
 			case IMAGETYPE_JPEG: $imgCreate = 'ImageCreateFromJPEG'; break;
 			case IMAGETYPE_GIF: $imgCreate = 'ImageCreateFromGIF'; break;
 			case IMAGETYPE_PNG: $imgCreate = 'ImageCreateFromPNG'; break;
-			default: return FALSE;
+			default: return false;
 		}
 	
 		// Crop the image horizontal or vertical
@@ -267,7 +267,7 @@ class Widget_Upload extends Byends_Widget
 		$srcY = 0;
 		
 		//中间裁剪
-		if( $this->options->imageConfig['cropType'] ) {
+		if($cropType) {
 			if( ( $srcWidth/$srcHeight ) > ( $thumbWidth/$thumbHeight ) ) {
 				$zoom = ($srcWidth/$srcHeight) / ($thumbWidth/$thumbHeight);
 				$srcX = ($srcWidth - $srcWidth / $zoom) / 2;
@@ -321,14 +321,19 @@ class Widget_Upload extends Byends_Widget
 	
 		imageDestroy( $thumb );
 		imageDestroy( $orig );
-		return TRUE;
+		return true;
 	}
 	
+	/**
+	 * 检测封面是否已经存在
+	 * @param string $coverHash
+	 * @return boolean
+	 */
 	public function checkCoverExists($coverHash) 
 	{
 		$c = $this->db->query('SELECT cid FROM '.BYENDS_TABLE_CONTENTS.' WHERE coverHash = :1', $coverHash);
 		
-		return $c ? TRUE : FALSE;
+		return $c ? true : false;
 	}
 	
 	/**
@@ -340,7 +345,7 @@ class Widget_Upload extends Byends_Widget
 	public function checkFileExists($dir, $fileName)
 	{
 		$path = $dir . $fileName;
-		return file_exists($path) ? TRUE : FALSE;
+		return file_exists($path) ? true : false;
 	}
 	
 	/**
@@ -369,10 +374,10 @@ class Widget_Upload extends Byends_Widget
 	public function mkdirr($pathname)
 	{
 		if( empty($pathname) || is_dir($pathname) ) {
-			return TRUE;
+			return true;
 		}
 		if ( is_file($pathname) ) {
-			return FALSE;
+			return false;
 		}
 	
 		$nextPathname = substr( $pathname, 0, strrpos( $pathname, '/' ) );
@@ -384,7 +389,7 @@ class Widget_Upload extends Byends_Widget
 				return $success;
 			}
 		}
-		return FALSE;
+		return false;
 	}
 	
 	public function uniqueStr($hex)
@@ -422,6 +427,7 @@ class Widget_Upload extends Byends_Widget
 		}
 		return $output;
 	}
+	
 }
 
 ?>

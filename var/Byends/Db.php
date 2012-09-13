@@ -4,9 +4,10 @@
  *
  * @author BYENDS (byends@gmail.com)
  * @package Byends_Db
- * @copyright  Copyright (c) 2011 Byends (http://www.byends.com)
+ * @copyright  Copyright (c) 2012 Byends (http://www.byends.com)
  */
-class Byends_Db {
+class Byends_Db 
+{
 	public $sql;
 	public $numQueries = 0;
 	
@@ -15,6 +16,13 @@ class Byends_Db {
 	private $host, $db, $user, $pass;
 	private static $_instance;
 	
+	/**
+	 * 构造函数,初始化参数
+	 * @param string $host
+	 * @param string $db
+	 * @param string $user
+	 * @param string $pass
+	 */
 	public function __construct( $host, $db, $user, $pass) 
 	{
 		$this->host = $host;
@@ -23,11 +31,23 @@ class Byends_Db {
 		$this->pass = $pass;
 	}
 	
+	/**
+	 * 设置单例句柄
+	 *
+	 * @access public
+	 * @return Byends_Db
+	 */
 	public static function set(Byends_Db $db)
 	{
 		self::$_instance = $db;
 	}
 	
+	/**
+	 * 获取单例句柄
+	 *
+	 * @access public
+	 * @return Byends_Db
+	 */
 	public static function get()
 	{
 		if (empty(self::$_instance)) {

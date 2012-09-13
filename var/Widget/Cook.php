@@ -4,7 +4,7 @@
  *
  * @author BYENDS (byends@gmail.com)
  * @package Widget_Cook
- * @copyright  Copyright (c) 2011 Byends (http://www.byends.com)
+ * @copyright  Copyright (c) 2012 Byends (http://www.byends.com)
  */
 class Widget_Cook extends Widget_Content
 {
@@ -15,7 +15,7 @@ class Widget_Cook extends Widget_Content
 	 * @access private
 	 * @var Widget_Cook
 	 */
-	private static $_instance = NULL;
+	private static $_instance = null;
 
 	public function __construct()
 	{
@@ -30,7 +30,7 @@ class Widget_Cook extends Widget_Content
 	 */
 	public static function getInstance()
 	{
-		if (NULL === self::$_instance) {
+		if (null === self::$_instance) {
 			self::$_instance = new Widget_Cook();
 		}
 
@@ -100,8 +100,9 @@ class Widget_Cook extends Widget_Content
 	 * 操作收藏 （存在则删除，不存在则添加）
 	 * @return array
 	 */
-	public function doFavorite($cid){
-		$state = 'saved';
+	public function doFavorite($cid, $state = null)
+	{
+		$state = $state ? $state : 'saved';
 		$favoriteExists = $this->favoriteExists($cid);
 		
 		if ($favoriteExists) {
@@ -113,7 +114,7 @@ class Widget_Cook extends Widget_Content
 			);
 			$state = 'unsaved';
 		}
-		else {
+		elseif ($state == 'saved') {
 			$this->db->insertRow(BYENDS_TABLE_FAVORITES, array(
 					'uid' => $this->uid,
 					'cid' => $cid,
@@ -134,7 +135,8 @@ class Widget_Cook extends Widget_Content
 	 * @param int $cid
 	 * @return boolean
 	 */
-	public function refreshFavorite($cid) {
+	public function refreshFavorite($cid) 
+	{
 		$favorite = $this->db->query(
 				'SELECT 
 					SQL_CALC_FOUND_ROWS
@@ -172,6 +174,6 @@ class Widget_Cook extends Widget_Content
 					uid = :1 AND cid = :2 LIMIT 1',
 				$this->uid, $cid
 		);
-		return $favorite ? TRUE : FALSE;
+		return $favorite ? true : false;
 	}
 }

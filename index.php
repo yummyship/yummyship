@@ -5,15 +5,16 @@ if ( @file_exists('./install.php') ) {
 }
 
 require_once 'config.inc.php';
-require_once 'Widget/Config.php';
+require_once 'init.php';
+
 
 //header( 'Content-type: text/html; charset=utf-8' );
 
-
-$request = Byends_Request::getInstance($options);
+$request = Byends_Request::getInstance();
+$request->setRouting($options->routingTable);
 $pathInfo = $request->getPathInfo();
 
-$ver = '12.9.10.1011';
+$ver = '12.9.12.1505';
 
 /** index */
 if ( $request->match($pathInfo, 'index') || $request->match($pathInfo, 'index_page') ){
@@ -176,7 +177,7 @@ else if( $request->match($pathInfo, 'api') || $request->match($pathInfo, 'apiDo'
 				$cid = $widget->request->filter('trim', 'int')->ri;
 				$content = $widget->setCondtion(array('cid' => $cid))->select($cid);
 				
-				if (NULL === $widget->uid || !$content) {
+				if (null === $widget->uid || !$content) {
 					echo $deniedMsg;
 					exit;
 				}
@@ -267,9 +268,14 @@ else if ($request->match($pathInfo, 'cook')
 	$page = $page ? $page[2]-1 : 0;
 	
 	$widget = Widget_Cook::getInstance();
-	$user = Widget_User::getInstance();
-	
-	$userInfo = $user->getUser(array('name' => $cook[1]));
+	$userInstance = Widget_User::getInstance();
+	$condition = array(
+			'params'      => array('name' => $cook[1]),
+			'status'      => 'normal',
+			'processUser' => true,
+			'object'      => true,
+	);
+	$userInfo = $userInstance->setCondtion($condition)->select();
 	
 	if ($userInfo) {
 		$condition = array(
@@ -302,9 +308,14 @@ else if ($request->match($pathInfo, 'likes')
 	$page = $request->match($pathInfo, 'likes_page');
 	$page = $page ? $page[2]-1 : 0;
 	$widget = Widget_Cook::getInstance();
-	$user = Widget_User::getInstance();
-
-	$userInfo = $user->getUser(array('name' => $likes[1]));
+	$userInstance = Widget_User::getInstance();
+	$condition = array(
+			'params'      => array('name' => $likes[1]),
+			'status'      => 'normal',
+			'processUser' => true,
+			'object'      => true,
+	);
+	$userInfo = $userInstance->setCondtion($condition)->select();
 
 	if ($userInfo) {
 		$condition = array(

@@ -4,12 +4,29 @@
  *
  * @author BYENDS (byends@gmail.com)
  * @package Widget_Options
- * @copyright  Copyright (c) 2011 Byends (http://www.byends.com)
+ * @copyright  Copyright (c) 2012 Byends (http://www.byends.com)
  */
-class Widget_Options
+class Widget_Options extends Byends_Widget
 {
-	protected $db = NULL;
-	public static $options = NULL;
+	public static $options = null;
+	private static $_routingTable = array(
+    	'index'        => '|^[/]?$|',
+    	'index_page'   => '|^/index/([0-9]+)$|',
+    	'auth'  	   => '|^/auth/([^/]+)$|',
+    	'user'  	   => '|^/user/([^/]+)$|',
+    	'cook'  	   => '|^/cook/([^/]+)$|',
+    	'cook_page'    => '|^/cook/([^/]+)/([0-9]+)$|',
+    	'likes'  	   => '|^/likes/([^/]+)$|',
+    	'likes_page'   => '|^/likes/([^/]+)/([0-9]+)$|',
+    	//'tag'		   => '|^/tag/([^/]+)$|',
+    	//'tag_page'   => '|^/tag/([^/]+)/([0-9]+)$|',
+    	'popular'      => '|^/popular$|',
+    	'popular_page' => '|^/popular/([0-9]+)$|',
+    	'random'       => '|^/random$|',
+    	'api'      	   => '|^/api$|',
+    	'apiDo'        => '|^/api/([^/]+)|',
+    	'feed'         => '|^/feed$|',
+    );
 	
 	/**
 	 * 单例句柄
@@ -17,12 +34,13 @@ class Widget_Options
 	 * @access private
 	 * @var Widget_Options
 	 */
-	private static $_instance = NULL;
+	private static $_instance = null;
 	
 	public function __construct()
 	{
-		$this->db = Byends_Db::get();
-		self::$options = (object)$this->getOptions();
+		parent::__construct();
+		
+		self::$options = (object)$this->select();
 	}
 	
 	/**
@@ -33,13 +51,17 @@ class Widget_Options
 	 */
 	public static function getInstance()
 	{
-		if (NULL === self::$_instance) {
+		if (null === self::$_instance) {
 			self::$_instance = new Widget_Options();
 		}
 	
 		return self::$_instance;
 	}
 	
+	/**
+	 * 获取配置句柄
+	 * @return array
+	 */
 	public static function get()
 	{
 		if (empty(self::$options)) {
@@ -49,7 +71,11 @@ class Widget_Options
 		return self::$options;
 	}
 	
-	public function getOptions()
+	/**
+	 * 获取配置项
+	 * @return array
+	 */
+	public function select()
 	{
 		$options = $this->db->query(
 			'SELECT  
@@ -61,6 +87,12 @@ class Widget_Options
 		foreach( $options as $v ) {
 			$temp[$v['name']] = $v['value'];
 		}
+		
+		self::$_routingTable['zoom']     = '|^/'.$temp['seed'].'/([0-9]+)/zoom$|';
+		self::$_routingTable['seed']     = '|^/'.$temp['seed'].'/([0-9]+)$|';
+		self::$_routingTable['tag'] 	 = '|^/'.$temp['tag'].'/([^/]+)$|';
+		self::$_routingTable['tag_page'] = '|^/'.$temp['tag'].'/([^/]+)/([0-9]+)$|';
+		$temp['routingTable'] = self::$_routingTable;
 		$temp['imageConfig'] = unserialize($temp['imageConfig']);
 		$temp['imageConfig']['coverSize'] = explode('|', $temp['imageConfig']['coverSize']);
 		$temp['imageConfig']['thumbSize'] = explode('|', $temp['imageConfig']['thumbSize']);
@@ -69,24 +101,57 @@ class Widget_Options
 		return $temp;
 	}
 	
-	public function addOption( $name, $value) {
+	/** 
+	 * 添加配置
+	 * @param string $name
+	 * @param string $value
+	 * @return boolean
+	 */
+	public function insert($name, $value) 
+	{
 		$this->db->insertRow(
-				ASAPH_TABLE_OPTIONS,
+				BYENDS_TABLE_OPTIONS,
 				array(
-						'name'  => $name,
-						'value' => $value
+					'name'  => $name,
+					'value' => $value
 				)
 		);
 		return true;
 	}
 	
-	public function updateOption( $name, $value) {
+	/**
+	 * 更新配置
+	 * @param string $name
+	 * @param string $value
+	 * @return boolean
+	 */
+	public function update($name, $value) 
+	{
 		$this->db->updateRow(
 				BYENDS_TABLE_OPTIONS,
 				array( 'name'  => $name ),
 				array( 'value' => $value )
 		);
 		return true;
+	}
+	
+	/**
+	 * 主题列表
+	 * @return array
+	 */
+	public function themesList() 
+	{
+		$themes = array();
+		if ($handle = opendir(BYENDS_THEMES_DIR)) {
+			while (false !== ($theme = readdir($handle))) {
+				if ($theme{0} <> '.' && is_dir(BYENDS_THEMES_DIR.$theme)) {
+					$themes[] = $theme;
+				}
+			}
+			closedir($handle);
+		}
+		
+		return $themes;
 	}
 	
 }

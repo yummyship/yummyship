@@ -14,7 +14,7 @@
 			</div>
 			<div class="cover">
 				<img src="<?php echo $content['cover']; ?>" title="<?php echo $content['title']; ?>" alt="<?php echo $content['title']; ?>"<?php echo $meta;?> />
-				<?php if(FALSE) {?>
+				<?php if(false) {?>
 				<a class="zoom" href="<?php echo $content['zoomPermalink']; ?>" title="Full Image"></a>
 				<?php }?>
 			</div>

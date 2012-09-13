@@ -4,7 +4,7 @@
  *
  * @author BYENDS (byends@gmail.com)
  * @package Byends_Request
- * @copyright  Copyright (c) 2011 Byends (http://www.byends.com)
+ * @copyright  Copyright (c) 2012 Byends (http://www.byends.com)
  */
 class Byends_Request
 {
@@ -22,7 +22,7 @@ class Byends_Request
      * @access private
      * @var string
      */
-    private $_pathInfo = NULL;
+    private $_pathInfo = null;
 
     /**
      * 服务端参数
@@ -38,7 +38,7 @@ class Byends_Request
      * @access private
      * @var string
      */
-    private $_ip = NULL;
+    private $_ip = null;
 
     /**
      * 客户端字符串
@@ -46,7 +46,7 @@ class Byends_Request
      * @access private
      * @var string
      */
-    private $_agent = NULL;
+    private $_agent = null;
 
     /**
      * 来源页
@@ -54,7 +54,7 @@ class Byends_Request
      * @access private
      * @var string
      */
-    private $_referer = NULL;
+    private $_referer = null;
 
     /**
      * 单例句柄
@@ -62,7 +62,7 @@ class Byends_Request
      * @access private
      * @var Byends_Request
      */
-    private static $_instance = NULL;
+    private static $_instance = null;
 
     /**
      * 当前过滤器
@@ -87,24 +87,7 @@ class Byends_Request
         'url'       =>  array('Byends_Paragraph', 'safeUrl')
     );
     
-    private static $_routingTable = array(
-    	'index'        => array('regx' => '|^[/]?$|'),
-    	'index_page'   => array('regx' => '|^/index/([0-9]+)$|'),
-    	'auth'  	   => array('regx' => '|^/auth/([^/]+)$|'),
-    	'user'  	   => array('regx' => '|^/user/([^/]+)$|'),
-    	'cook'  	   => array('regx' => '|^/cook/([^/]+)$|'),
-    	'cook_page'    => array('regx' => '|^/cook/([^/]+)/([0-9]+)$|'),
-    	'likes'  	   => array('regx' => '|^/likes/([^/]+)$|'),
-    	'likes_page'   => array('regx' => '|^/likes/([^/]+)/([0-9]+)$|'),
-    	//'tag'		   => array('regx' => '|^/tag/([^/]+)$|'),
-    	//'tag_page'     => array('regx' => '|^/tag/([^/]+)/([0-9]+)$|'),
-    	'popular'      => array('regx' => '|^/popular$|'),
-    	'popular_page' => array('regx' => '|^/popular/([0-9]+)$|'),
-    	'random'       => array('regx' => '|^/random$|'),
-    	'api'      	   => array('regx' => '|^/api$|'),
-    	'apiDo'        => array('regx' => '|^/api/([^/]+)|'),
-    	'feed'         => array('regx' => '|^/feed$|'),
-    );
+    private static $_routingTable = array();
 
     /**
      * 获取单例句柄
@@ -112,23 +95,51 @@ class Byends_Request
      * @access public
      * @return Typecho_Request
      */
-    public static function getInstance($options)
+    public static function getInstance()
     {
-        if (NULL === self::$_instance) {
+        if (null === self::$_instance) {
         	self::$_instance = new Byends_Request();
         }
-        self::$_routingTable['zoom'] = array('regx' => '|^/'.($options->seed).'/([0-9]+)/zoom$|');
-        self::$_routingTable['seed'] = array('regx' => '|^/'.($options->seed).'/([0-9]+)$|');
-        self::$_routingTable['tag'] = array('regx' => '|^/'.($options->tag).'/([^/]+)$|');
-        self::$_routingTable['tag_page'] = array('regx' => '|^/'.($options->tag).'/([^/]+)/([0-9]+)$|');
         
         return self::$_instance;
     }
     
-    public function match($pathInfo, $action, $parameter = NULL)
+    /**
+     * 设置路由
+     * @param array $routing
+     * @return boolean
+     */
+    public function setRouting($routing)
     {
-    	if (preg_match(self::$_routingTable[$action]['regx'], $pathInfo, $matches)) {
-    		return $matches;
+    	if (is_array($routing)) {
+    		foreach ($routing as $k => $v) {
+    			self::$_routingTable[$k] = $v;
+    		}
+    		return true;
+    	}
+    	
+    	return false;
+    }
+    
+    /**
+     * 匹配路由
+     * @param string $pathInfo
+     * @param string $action
+     * @return boolean
+     */
+    public function match($pathInfo, $action = null)
+    {
+    	if ($action) {
+	    	if (preg_match(self::$_routingTable[$action], $pathInfo, $matches)) {
+	    		return $matches;
+	    	}
+    	}
+    	else {
+    		foreach (self::$_routingTable as $k => $v) {
+    			if (preg_match($v, $pathInfo, $matches)) {
+    				return array($k => array_pop($matches));
+    			}
+    		}
     	}
     	return false;
     }
@@ -204,10 +215,10 @@ class Byends_Request
      *
      * @access public
      * @param string $key 指定参数
-     * @param mixed $default 默认参数 (default: NULL)
+     * @param mixed $default 默认参数 (default: null)
      * @return void
      */
-    public function get($key, $default = NULL)
+    public function get($key, $default = null)
     {
         $value = $default;
 
@@ -260,7 +271,7 @@ class Byends_Request
      * @param mixed $default 默认的参数
      * @return mixed
      */
-    public function getParam($key, $default = NULL)
+    public function getParam($key, $default = null)
     {
         $value = isset($this->_params[$key]) ? $this->_params[$key] : $default;
         $value = is_array($value) || strlen($value) > 0 ? $value : $default;
@@ -329,7 +340,7 @@ class Byends_Request
      * @param mixed $parameter 指定的参数
      * @return string
      */
-    public function makeUriByRequest($parameter = NULL)
+    public function makeUriByRequest($parameter = null)
     {
         /** 初始化地址 */
         $scheme = $this->isSecure() ? 'https' : 'http';
@@ -365,18 +376,18 @@ class Byends_Request
      * @param string $outputEncoding 输出编码
      * @return string
      */
-    public function getPathInfo($inputEncoding = NULL, $outputEncoding = NULL)
+    public function getPathInfo($inputEncoding = null, $outputEncoding = null)
     {
         /** 缓存信息 */
-        if (NULL !== $this->_pathInfo) {
+        if (null !== $this->_pathInfo) {
             return $this->_pathInfo;
         }
 
         //参考Zend Framework对pahtinfo的处理, 更好的兼容性
-        $pathInfo = NULL;
+        $pathInfo = null;
 
         //处理requestUri
-        $requestUri = NULL;
+        $requestUri = null;
 
         if (isset($_SERVER['HTTP_X_REWRITE_URL'])) { // check this first so IIS will catch
             $requestUri = $_SERVER['HTTP_X_REWRITE_URL'];
@@ -434,7 +445,7 @@ class Byends_Request
         }
 
         // Does the baseUrl have anything in common with the request_uri?
-        $finalBaseUrl = NULL;
+        $finalBaseUrl = null;
 
         if (0 === strpos($requestUri, $baseUrl)) {
             // full $baseUrl matches
@@ -454,19 +465,19 @@ class Byends_Request
             $baseUrl = substr($requestUri, 0, $pos + strlen($baseUrl));
         }
 
-        $finalBaseUrl = (NULL === $finalBaseUrl) ? rtrim($baseUrl, '/') : $finalBaseUrl;
+        $finalBaseUrl = (null === $finalBaseUrl) ? rtrim($baseUrl, '/') : $finalBaseUrl;
 
         // Remove the query string from REQUEST_URI
         if ($pos = strpos($requestUri, '?')) {
             $requestUri = substr($requestUri, 0, $pos);
         }
 
-        if ((NULL !== $finalBaseUrl)
+        if ((null !== $finalBaseUrl)
             && (false === ($pathInfo = substr($requestUri, strlen($finalBaseUrl)))))
         {
             // If substr() returns false then PATH_INFO is set to an empty string
             $pathInfo = '/';
-        } elseif (NULL === $finalBaseUrl) {
+        } elseif (null === $finalBaseUrl) {
             $pathInfo = $requestUri;
         }
 
@@ -498,9 +509,9 @@ class Byends_Request
      * @param mixed $value 参数值
      * @return void
      */
-    public function setServer($name, $value = NULL)
+    public function setServer($name, $value = null)
     {
-        if (NULL == $value) {
+        if (null == $value) {
             if (isset($_SERVER[$name])) {
                 $value = $_SERVER[$name];
             } else if (isset($_ENV[$name])) {
@@ -534,16 +545,16 @@ class Byends_Request
      * @param unknown $ip
      * @return unknown
      */
-    public function setIp($ip = NULL)
+    public function setIp($ip = null)
     {
         switch (true) {
-            case NULL !== $this->getServer('HTTP_X_FORWARDED_FOR'):
+            case null !== $this->getServer('HTTP_X_FORWARDED_FOR'):
                 list($this->_ip) = array_map('trim', explode(',', $this->getServer('HTTP_X_FORWARDED_FOR')));
                 return;
-            case NULL !== $this->getServer('HTTP_CLIENT_IP'):
+            case null !== $this->getServer('HTTP_CLIENT_IP'):
                 $this->_ip = $this->getServer('HTTP_CLIENT_IP');
                 return;
-            case NULL !== $this->getServer('REMOTE_ADDR'):
+            case null !== $this->getServer('REMOTE_ADDR'):
                 $this->_ip = $this->getServer('REMOTE_ADDR');
                 return;
             default:
@@ -561,7 +572,7 @@ class Byends_Request
      */
     public function getIp()
     {
-        if (NULL === $this->_ip) {
+        if (null === $this->_ip) {
             $this->setIp();
         }
 
@@ -575,9 +586,9 @@ class Byends_Request
      * @param string $agent 客户端字符串
      * @return void
      */
-    public function setAgent($agent = NULL)
+    public function setAgent($agent = null)
     {
-        $this->_agent = (NULL === $agent) ? $this->getServer('HTTP_USER_AGENT') : $agent;
+        $this->_agent = (null === $agent) ? $this->getServer('HTTP_USER_AGENT') : $agent;
     }
 
     /**
@@ -588,7 +599,7 @@ class Byends_Request
      */
     public function getAgent()
     {
-        if (NULL === $this->_agent) {
+        if (null === $this->_agent) {
             $this->setAgent();
         }
 
@@ -602,9 +613,9 @@ class Byends_Request
      * @param string $referer 客户端字符串
      * @return void
      */
-    public function setReferer($referer = NULL)
+    public function setReferer($referer = null)
     {
-        $this->_referer = (NULL === $referer) ? $this->getServer('HTTP_REFERER') : $referer;
+        $this->_referer = (null === $referer) ? $this->getServer('HTTP_REFERER') : $referer;
     }
 
     /**
@@ -615,7 +626,7 @@ class Byends_Request
      */
     public function getReferer()
     {
-        if (NULL === $this->_referer) {
+        if (null === $this->_referer) {
             $this->setReferer();
         }
 

@@ -4,7 +4,7 @@
  *
  * @author BYENDS (byends@gmail.com)
  * @package Byends_Response
- * @copyright  Copyright (c) 2011 Byends (http://www.byends.com)
+ * @copyright  Copyright (c) 2012 Byends (http://www.byends.com)
  */
 
 /** 载入api支持 */
@@ -260,7 +260,7 @@ class Byends_Response
      * @param string $default 默认来路
      * @return void
      */
-    public function goBack($suffix = NULL, $default = NULL)
+    public function goBack($suffix = null, $default = null)
     {
         //获取来源
         $referer = isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : '';

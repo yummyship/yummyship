@@ -3,8 +3,8 @@
  * 段落处理类
  *
  * @author BYENDS (byends@gmail.com)
- * @package Byends_Date
- * @copyright  Copyright (c) 2011 Byends (http://www.byends.com)
+ * @package Byends_Paragraph
+ * @copyright  Copyright (c) 2012 Byends (http://www.byends.com)
  */
 class Byends_Paragraph
 {
@@ -251,7 +251,7 @@ class Byends_Paragraph
      * @param string $salt 扰码
      * @return string
      */
-    public static function hash($string, $salt = NULL)
+    public static function hash($string, $salt = null)
     {
     	/** 生成随机字符串 */
     	$salt = empty($salt) ? self::randString(9) : $salt;
@@ -317,7 +317,7 @@ class Byends_Paragraph
      * @param integer $maxLength 缩略名最大长度
      * @return string
      */
-    public static function slugName($str, $default = NULL, $maxLength = 200)
+    public static function slugName($str, $default = null, $maxLength = 200)
     {
     	$str = str_replace(array("'", ":", "\\", "/", '"'), "", $str);
     	$str = str_replace(array("+", ",", ' ', '，', ' ', ".", "?", "=", "&", "!", "<", ">", "(", ")", "[", "]", "{", "}"), "-", $str);
@@ -417,13 +417,13 @@ class Byends_Paragraph
      */
     public static function buildUrl($params)
     {
-    	return (isset($params['scheme']) ? $params['scheme'] . '://' : NULL)
-    	. (isset($params['user']) ? $params['user'] . (isset($params['pass']) ? ':' . $params['pass'] : NULL) . '@' : NULL)
-    	. (isset($params['host']) ? $params['host'] : NULL)
-    	. (isset($params['port']) ? ':' . $params['port'] : NULL)
-    	. (isset($params['path']) ? $params['path'] : NULL)
-    	. (isset($params['query']) ? '?' . $params['query'] : NULL)
-    	. (isset($params['fragment']) ? '#' . $params['fragment'] : NULL);
+    	return (isset($params['scheme']) ? $params['scheme'] . '://' : null)
+    	. (isset($params['user']) ? $params['user'] . (isset($params['pass']) ? ':' . $params['pass'] : null) . '@' : null)
+    	. (isset($params['host']) ? $params['host'] : null)
+    	. (isset($params['port']) ? ':' . $params['port'] : null)
+    	. (isset($params['path']) ? $params['path'] : null)
+    	. (isset($params['query']) ? '?' . $params['query'] : null)
+    	. (isset($params['fragment']) ? '#' . $params['fragment'] : null);
     }
     
     /**
@@ -517,7 +517,7 @@ class Byends_Paragraph
      * @param string $allowableTags 需要忽略的html标签
      * @return string
      */
-    public static function stripTags($html, $allowableTags = NULL)
+    public static function stripTags($html, $allowableTags = null)
     {
     	if (!empty($allowableTags) && preg_match_all("/\<([a-z]+)([^>]*)\>/is", $allowableTags, $tags)) {
     		self::$_allowableTags = '|' . implode('|', $tags[1]) . '|';
@@ -900,7 +900,8 @@ class Byends_Paragraph
      * @param int $num
      * @return string
      */
-    public static function code2utf($num) {
+    public static function code2utf($num) 
+    {
     	if ($num < 128)
     		return chr ( $num );
     	if ($num < 2048)
@@ -918,7 +919,8 @@ class Byends_Paragraph
      * @param $in_encoding
      * @param $out_encoding
      */
-    public static function escape($string, $in_encoding = 'UTF-8', $out_encoding = 'UCS-2') {
+    public static function escape($string, $in_encoding = 'UTF-8', $out_encoding = 'UCS-2') 
+    {
     	$return = '';
     	if (function_exists('mb_get_info')) {
     		for($x = 0; $x < mb_strlen ( $string, $in_encoding ); $x ++) {
@@ -940,7 +942,8 @@ class Byends_Paragraph
      * @param string $str
      * @return string
      */
-    public static function unescape($str) {
+    public static function unescape($str) 
+    {
     	$decodedStr = '';
     	$pos = 0;
     	$len = strlen ( $str );
@@ -975,7 +978,8 @@ class Byends_Paragraph
      * @param $string $fileName
      * @return array
      */
-    public static function getLinesFromFile($fileName) {
+    public static function getLinesFromFile($fileName) 
+    {
 	    if (!$fileHandle = fopen($fileName, 'r')) {
 	        return;
 	    }

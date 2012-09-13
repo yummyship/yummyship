@@ -1,5 +1,8 @@
 <?php
 
+/** 开始会话 */
+@session_start();
+
 require_once 'Widget/Options.php';
 
 if (function_exists("ini_get") && !ini_get("date.timezone") && function_exists("date_default_timezone_set")) {
@@ -12,6 +15,8 @@ $subAbsolutePath = substr($options->absolutePath, -1) == '/' ? substr($options->
 
 define( 'BYENDS_BASE_URL',				'http://'.$options->domain.$subAbsolutePath );
 define( 'BYENDS_STATIC_URL',			'http://'.$options->staticDomain.$subAbsolutePath );
+
+define( 'BYENDS_THEMES_DIR',			__BYENDS_ROOT_DIR__.__BYENDS_THEMES_DIR__ );
 
 /** 定义当前主题目录(相对路径) */
 define('__BYENDS_THEME_DIR__',			__BYENDS_THEMES_DIR__.$options->theme.'/');
