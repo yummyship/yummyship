@@ -4,7 +4,7 @@
 	<div id="content" class="clearfix">
 		<div class="dialog clearfix">
 			<div class="sign relative clearfix">
-			    <h2>Sign In to Lovewithyummy</h2>
+			    <h2>Sign In to YummyShip</h2>
 				<?php if($notice->have() && in_array($notice->noticeType, array('success', 'notice', 'error'))): ?>
 				<div class="radius message <?php $notice->noticeType(); ?>">
 				<ul>
