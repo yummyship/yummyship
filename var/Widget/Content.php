@@ -103,7 +103,7 @@ class Widget_Content extends Widget_Abstract
 			$condition = $this->sCondition['status'] ? ' AND c.status = :3 ' : '';
 			$content = $this->db->getRow(
 				'SELECT
-					'.$this->select.', u.fullname, u.username, u.url, u.created, u.description, 
+					'.$this->select.', u.fullname, u.username, u.url, u.description, 
 					u.avatar, u.status, u.likesNum, u.publishedNum 
 				FROM
 					'.BYENDS_TABLE_CONTENTS.' c
@@ -137,7 +137,7 @@ class Widget_Content extends Widget_Abstract
 			
 			$contents = $this->db->query(
 				'SELECT SQL_CALC_FOUND_ROWS
-					'.$this->select.', u.fullname, u.username, u.url, u.created, u.description, 
+					'.$this->select.', u.fullname, u.username, u.url, u.description, 
 					u.avatar, u.status, u.likesNum, u.publishedNum 
 				FROM
 					'.BYENDS_TABLE_CONTENTS.' c
@@ -591,6 +591,7 @@ class Widget_Content extends Widget_Abstract
 				array('cid' => $cid),
 				$data
 		);
+		$this->refreshPublishedNum($this->uid);
 		
 		return true;
 	}
@@ -626,8 +627,8 @@ class Widget_Content extends Widget_Abstract
 			FROM
 				'.BYENDS_TABLE_CONTENTS.' 
 			WHERE
-				type = :1 AND status = :2 ',
-			'post', 'publish'
+				uid = :1 AND type = :2 AND status = :3',
+			$uid, 'post', 'publish'
 		);
 		
 		$publishedNum = $this->db->foundRows();

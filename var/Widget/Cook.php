@@ -71,7 +71,7 @@ class Widget_Cook extends Widget_Content
 		
 		$contents = $this->db->query(
 			'SELECT SQL_CALC_FOUND_ROWS
-				'.$this->select.', u.fullname, u.username, u.url, u.created, u.description, 
+				'.$this->select.', u.fullname, u.username, u.url, u.description, 
 					u.avatar, u.status, u.likesNum, u.publishedNum 
 			FROM
 				'.BYENDS_TABLE_CONTENTS.' c

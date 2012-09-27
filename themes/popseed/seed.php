@@ -35,6 +35,7 @@
 		<div id="recipe-content">
 			<h1><?php echo $content['title']; ?></h1><?php 
 				$meta = ' srcWidth="'.$content['width'].'" srcHeight="'.$content['height'].'"';
+				$style = '';
 				if($content['width'] > 526){
 					$meta = ' width="526" '.$meta;
 				}

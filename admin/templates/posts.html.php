@@ -7,7 +7,7 @@
 		<th>Image</th>
 		<th>Cid</th>
 		<th>Title</th>
-		<th>Date / User</th>
+		<th>Modified / User</th>
 		<th>Brief</th>
 		<th>Status</th>
 		<!-- <th>AllowComment/CommentsNum</th> -->
@@ -26,7 +26,7 @@
 				<a href="?post&edit&cid=<?php echo $p['cid'];?>" title="Edit"><?php echo $p['title']; ?></a>
 			</td>
 			<td class="date">
-				<?php echo date( 'Y-m-d H:i', $p['created'] ); ?>
+				<?php echo date( 'Y-m-d H:i', $p['modified'] ); ?>
 				<div class="user"><?php echo $p['fullname']; ?></div>
 			</td>
 			<td class="text">

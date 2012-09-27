@@ -14,7 +14,7 @@ $request = Byends_Request::getInstance();
 $request->setRouting($options->routingTable);
 $pathInfo = $request->getPathInfo();
 
-$ver = '2012.9.27.1254';
+$ver = '2012.9.27.1811';
 $metaInfo = (object)array(
 	'title' => 'Yummyship — Page Not Found',
 	'keywords' => '404,Yummyship,Page Not Found',

@@ -454,7 +454,7 @@ var Yummyship = {
 				url = 'http://www.tumblr.com/share/photo?source='+spic+'&caption='+stitle+'&click_thru='+surl,'tu','toolbar=0,status=0,width=500,height=460';
 				break;
 			case 'pi':
-				url = 'http://pinterest.com/pin/create/bookmarklet/?media='+spic+'&url='+surl+'&title=Popular%20IMG&is_video=false&description=';
+				url = 'http://pinterest.com/pin/create/bookmarklet/?media='+spic+'&url='+surl+'&title=Popular%20IMG&is_video=false&description='+stitle;
 				break;
 			case 'we':
 				url = 'http://weheartit.com/create_entry/?bookmarklet_version=1.0.1&extension_version=&hearting_method=bookmarklet&media='+spic+'&encoding=utf-8&title=Inspiring+images&via='+surl+'&tags=';

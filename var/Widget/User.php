@@ -320,6 +320,8 @@ class Widget_User extends Widget_Abstract
 				);
 			}
 			
+			session_unset();
+			
 			if (null != $this->request->referer) {
 				$this->response->redirect($this->request->referer);
 				// 		} else if ($this->pass('administrator', TURE)) {
@@ -365,6 +367,7 @@ class Widget_User extends Widget_Abstract
 			Byends_Cookie::set('__byends_authUid', $oAuthInfo['oAuthUid'], $expire, BYENDS_BASE_URL);
 			Byends_Cookie::set('__byends_authType', $oAuthInfo['oAuthType'], $expire, BYENDS_BASE_URL);
 			Byends_Cookie::set('__byends_authCode', $oAuthInfo['oAuthCode'], $expire, BYENDS_BASE_URL);
+			session_unset();
 			
 			if (null != $this->request->referer) {
 				$this->response->redirect($this->request->referer);
@@ -761,11 +764,7 @@ class Widget_User extends Widget_Abstract
 						}
 						
 						try {
-							$userProfile = $facebook->api('/me?fields=id,email,name,username,gender,verified,
-											picture.height('.$this->options->imageConfig->avatarSize[1].')
-											.width('.$this->options->imageConfig->avatarSize[0].')');
-							
-							
+							$userProfile = $facebook->api('/me?fields=id,email,name,username,gender,verified,picture.height('.$this->options->imageConfig['avatarSize'][1].').width('.$this->options->imageConfig['avatarSize'][0].')');
 							$oAuthInfo = array(
 								'oAuthUid'    => $userProfile['id'],
 								'mail'        => $userProfile['email'],

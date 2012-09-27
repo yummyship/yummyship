@@ -1047,6 +1047,9 @@ ul.dropdown-menu li.nohover:hover,ul.dropdown-menu li.nohover a:hover {
 
 #recipe-content .cover {
 	position: relative;
+	background-repeat: no-repeat;
+	background-position: 50% 50%;
+	background-color: white;
 }
 
 #recipe-content .cover img {
@@ -1057,9 +1060,6 @@ ul.dropdown-menu li.nohover:hover,ul.dropdown-menu li.nohover a:hover {
 .recipe-big-cover {
 	overflow: hidden;
 	cursor: pointer;
-	background-repeat: no-repeat;
-	background-position: 50% 50%;
-	background-color: white;
 }
 
 #recipe-content a.zoom {
