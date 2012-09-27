@@ -54,8 +54,6 @@ class Widget_Cook extends Widget_Content
 					'.BYENDS_TABLE_FAVORITES.'
 				WHERE
 					uid = :1
-				ORDER BY
-					'.$this->sCondition['order'][0].' '.$this->sCondition['order'][1].'
 				LIMIT
 					:2, :3',
 				$uid, $this->currentPage * $this->perPage, $this->perPage
@@ -73,14 +71,17 @@ class Widget_Cook extends Widget_Content
 		
 		$contents = $this->db->query(
 			'SELECT SQL_CALC_FOUND_ROWS
-				'.$this->select.'
+				'.$this->select.', u.fullname, u.username, u.url, u.created, u.description, 
+					u.avatar, u.status, u.likesNum, u.publishedNum 
 			FROM
 				'.BYENDS_TABLE_CONTENTS.' c
 			LEFT JOIN '.BYENDS_TABLE_USERS.' u
 				ON u.uid = c.uid
 			WHERE
 				c.cid in ('.$favorites.')
-				AND c.type = \'post\' AND c.status = \'publish\'
+				AND c.type = \'post\' AND c.status = \'publish\' 
+			ORDER BY
+					'.$this->sCondition['order'][0].' '.$this->sCondition['order'][1].'
 			'
 		);
 	
@@ -94,6 +95,33 @@ class Widget_Cook extends Widget_Content
 		}
 	
 		return $contents;
+	}
+	
+	/**
+	 * 获取指定用户所有收藏的内容 id
+	 *
+	 * @access public
+	 * @return array
+	 */
+	public function favoritesId()
+	{
+		$uid = $this->sCondition['uid'] < 1 ? $this->uid : $this->sCondition['uid'];
+		$favorites = $this->db->query(
+				'SELECT SQL_CALC_FOUND_ROWS
+					cid
+				FROM
+					'.BYENDS_TABLE_FAVORITES.'
+				WHERE
+					uid = :1
+				',
+				$uid
+		);
+		
+		if( empty($favorites) ) {
+			return array();
+		}
+		
+		return Byends_Paragraph::arrayFlatten($favorites, 'cid');
 	}
 	
 	/**
@@ -123,6 +151,7 @@ class Widget_Cook extends Widget_Content
 		}
 		
 		$count = $this->refreshFavorite($cid);
+		$this->refreshLikesNum($this->uid);
 		
 		return json_encode(array(
 				'count' => $count,
@@ -131,7 +160,7 @@ class Widget_Cook extends Widget_Content
 	}
 	
 	/**
-	 * 刷新收藏次数
+	 * 刷新内容的收藏次数
 	 * @param int $cid
 	 * @return boolean
 	 */
@@ -155,6 +184,33 @@ class Widget_Cook extends Widget_Content
 		);
 	
 		return $count;
+	}
+	
+	/**
+	 * 刷新用户的收藏数量
+	 * @param integar $uid
+	 * @return boolean
+	 */
+	public function refreshLikesNum($uid)
+	{
+		$favorite = $this->db->query(
+				'SELECT
+					SQL_CALC_FOUND_ROWS
+					uid, cid
+				FROM
+					'.BYENDS_TABLE_FAVORITES.'
+				WHERE
+					uid = :1'
+				, $uid
+		);
+		$likesNum = $this->db->foundRows();
+		$this->db->updateRow(
+				BYENDS_TABLE_USERS,
+				array( 'uid' => $uid ),
+				array( 'likesNum' => $likesNum)
+		);
+		
+		return true;
 	}
 	
 	/**

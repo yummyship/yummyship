@@ -12,7 +12,7 @@
 <div id="menu">
 	<img src="<?php echo $userInstance->user->avatar; ?>" class="avatar" />
 	<br />
-	Hi, <?php echo $userInstance->user->name; ?>
+	Hi, <?php echo $userInstance->user->fullname; ?>
 	<a href="<?php echo BYENDS_AUTH_SIGNOUT_URL; ?>">Logout</a>
 	<br />
 	<br />
@@ -25,6 +25,8 @@
 	<a href="?user">Users</a>
 	<br />
 	<a href="?setting">Settings</a>
+	<br />
+	<a href="?ads">Advertising</a>
 	<!-- 
 	<br />
 	Bookmarklet:

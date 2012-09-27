@@ -27,7 +27,7 @@
 			</td>
 			<td class="date">
 				<?php echo date( 'Y-m-d H:i', $p['created'] ); ?>
-				<div class="user"><?php echo $p['userName']; ?></div>
+				<div class="user"><?php echo $p['fullname']; ?></div>
 			</td>
 			<td class="text">
 				<?php echo Byends_Paragraph::subStr($p['stripBrief'], 0, 35); ?>

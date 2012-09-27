@@ -71,7 +71,8 @@ $createTablesSQL = array(
 	
 	"CREATE TABLE IF NOT EXISTS `".BYENDS_TABLE_USERS."` (
 	  `uid` int(10) unsigned NOT NULL AUTO_INCREMENT,
-	  `name` varchar(32) DEFAULT NULL,
+	  `fullname` varchar(32) DEFAULT NULL,
+	  `username` varchar(32) DEFAULT NULL,
 	  `password` varchar(64) DEFAULT NULL,
 	  `mail` varchar(200) DEFAULT NULL,
 	  `url` varchar(200) DEFAULT NULL,
@@ -83,9 +84,24 @@ $createTablesSQL = array(
 	  `avatar` varchar(32) DEFAULT NULL,
 	  `notify` varchar(255) DEFAULT NULL,
 	  `status` varchar(16) DEFAULT 'normal',
+	  `likesNum` int(10) unsigned DEFAULT '0',
+	  `publishedNum` int(10) unsigned DEFAULT '0',
 	  PRIMARY KEY (`uid`),
-	  UNIQUE KEY `name` (`name`),
+	  UNIQUE KEY `username` (`username`),
 	  UNIQUE KEY `mail` (`mail`)
+	) ENGINE=MyISAM  DEFAULT CHARSET=utf8;",
+		
+	"CREATE TABLE IF NOT EXISTS `".BYENDS_TABLE_OAUTH_USERS."` (
+	  `oid` int(10) unsigned NOT NULL AUTO_INCREMENT,
+	  `uid` int(10) unsigned NOT NULL,
+	  `oAuthUid` varchar(32) NOT NULL,
+	  `oAuthCode` text,
+	  `accessToken` text,
+	  `oAuthType` varchar(10) DEFAULT NULL,
+	  PRIMARY KEY (`oid`),
+	  KEY `uid` (`uid`),
+	  KEY `oAuthUid` (`oAuthUid`),
+	  KEY `oAuthType` (`oAuthType`)
 	) ENGINE=MyISAM  DEFAULT CHARSET=utf8;",
 );
 
@@ -227,6 +243,7 @@ function installBYENDS( &$sql, &$errors ) {
 		'coverSize'   => '526|349',
 		'thumbSize'   => '250|192',
 		'stepSize'    => '200|132',
+		'avatarSize'  => '128|128',
 		'jpegQuality' => 80,
 		'cropType'    => 0
 	);
@@ -248,8 +265,10 @@ function installBYENDS( &$sql, &$errors ) {
 		'ajaxPerPage' => 9,
 		'lang' => 'en',
 		'imageConfig' => serialize($imageConfig),
-		'ads' => '',
-		'hiddens' => ''
+		'hiddens' => '',
+		'contentAds' => '',
+		'sidebarAds' => '',
+		'systemKey' => 'admin,administrator,manager,index,author,user,users,use,cook,cooks,list,special,specials,app,apps,feature,features,like,likes,fav,favorite,favorites,popular,top,from,to,recipe,recipes,trending,new,latest,last,mostliked,dish,dishes,all,explore,menu,collect,gather,publish,publisher,publishers,cate,cates,category,categorys,tag,tags,blog,blogs,type,auth,oauth,social,connect,create,search,time,date,page,pages,next,prev,random,api,feed,settings,goods,more,mark,make,action,sign,signin,signout,signup,forgot,forget,pass,password,terms,privacy,policy,about-us,sitemap,aboutus,about,terms-of-use,help,goodies,contact,privacy-policy',
 	);
 	foreach ( $options as $k => $v) {
 		$db->insertRow(	BYENDS_TABLE_OPTIONS, array(

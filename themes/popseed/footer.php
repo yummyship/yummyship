@@ -1,6 +1,4 @@
-<?php if( $current <> 'zoom') {?>
-	<div id="scroll-to-top">Scroll to Top</div>
-</div>
+<?php if( $current <> 'zoom' && $current <> '404' && false === strpos($current, 'auth')) {?>
 <div id="footer">
 	&copy; <?php echo BYENDS_COPYRIGHT_YEAR.' '.BYENDS_COPYRIGHT_NAME; ?>.
 </div>
@@ -8,12 +6,13 @@
 <div class="hidden">
 <script type="text/javascript" src="<?php echo BYENDS_THEMES_STATIC_URL; ?>js/jquery.js?<?php echo $ver; ?>"></script>
 <script type="text/javascript" src="<?php echo BYENDS_THEMES_STATIC_URL; ?>js/jquery.plugins.js?<?php echo $ver; ?>"></script>
-<script type="text/javascript" src="<?php echo BYENDS_THEMES_STATIC_URL; ?>js/common.js?<?php echo $ver; ?>"></script>
+<script type="text/javascript" src="<?php echo BYENDS_THEMES_STATIC_URL; ?>js/yummyship.js?<?php echo $ver; ?>"></script>
 <script type="text/javascript">
 var 
 domain = '<?php echo str_replace('www.', '', $options->domain); ?>',
 siteUrl = '<?php echo BYENDS_SITE_URL; ?>',
 signInUrl = '<?php echo BYENDS_AUTH_SIGNIN_URL; ?>',
+signOAuthUrl = '<?php echo BYENDS_AUTH_OAUTH_URL; ?>',
 signedIn = <?php echo (null !== $widget->uid ? 'true' : 'false'); ?>,
 seedAction = '<?php echo $current; ?>',
 seedName = '<?php echo $options->seed; ?>',

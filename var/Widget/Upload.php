@@ -151,6 +151,12 @@ class Widget_Upload extends Byends_Widget
 		if (!$this->mkdirr(dirname(__BYENDS_ROOT_DIR__.__BYENDS_TEMPS_DIR__))) {
 			return 'Make dir failed.';
 		}
+		
+		$validate = new Byends_Validate();
+		if (!$validate->url($url)) {
+			return 'The url incorrect.';
+		}
+		
 		$referer = $referer ? $referer : $url;
 		$fileName = basename($url);
 		

@@ -6,16 +6,20 @@
 		<div class="warn">
 			<?php if( $status == 'passwords-empty' ) { ?>The passwords was empty!<?php } ?>
 			<?php if( $status == 'passwords-not-equal' ) { ?>The passwords do not match!<?php } ?>
-			<?php if( $status == 'username-empty' ) { ?>The name was empty!<?php } ?>
+			<?php if( $status == 'fullname-empty' ) { ?>The fullname was empty!<?php } ?>
+			<?php if( $status == 'username-empty' ) { ?>The username was empty!<?php } ?>
 			<?php if( $status == 'mail-empty' ) { ?>The mail was empty!<?php } ?>
-			<?php if( $status == 'username-exists' ) { ?>The name was exists!<?php } ?>
+			<?php if( $status == 'username-exists' ) { ?>The username was exists!<?php } ?>
 			<?php if( $status == 'mail-incorrect' ) { ?>The mail was incorrect!<?php } ?>
 			<?php if( $status == 'mail-exists' ) { ?>The mail was exists!<?php } ?>
 		</div>
 	<?php } ?>
 	<dl>
-		<dt>Name:</dt>
-		<dd><input type="text" name="name" class="long" value="<?php echo $request->filter('trim')->name; ?>"/></dd>
+		<dt>Fullname:</dt>
+		<dd><input type="text" name="fullname" class="long" value="<?php echo $request->filter('trim')->fullname; ?>"/></dd>
+		
+		<dt>Username:</dt>
+		<dd><input type="text" name="username" class="long" value="<?php echo $request->filter('trim')->username; ?>"/></dd>
 		
 		<dt>Mail:</dt>
 		<dd><input type="text" name="mail" class="long" value="<?php echo $request->filter('trim')->mail; ?>"/></dd>

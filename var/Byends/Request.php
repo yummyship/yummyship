@@ -79,12 +79,13 @@ class Byends_Request
      * @var string
      */
     private static $_supportFilters = array(
-        'int'       =>  'intval',
-        'integer'   =>  'intval',
-    	'trim'		=>  array('Byends_Paragraph', 'trimDeep'),
-        'search'    =>  array('Byends_Paragraph', 'filterSearchQuery'),
-        'xss'       =>  array('Byends_Paragraph', 'removeXSS'),
-        'url'       =>  array('Byends_Paragraph', 'safeUrl')
+        'int'        => 'intval',
+        'integer'    => 'intval',
+    	'stripTags'  => array('Byends_Paragraph', 'stripTags'),
+    	'stripBrief' => array('Byends_Paragraph', 'stripBrief'),
+        'search'     => array('Byends_Paragraph', 'filterSearchQuery'),
+        'xss'        => array('Byends_Paragraph', 'removeXSS'),
+        'url'        => array('Byends_Paragraph', 'safeUrl')
     );
     
     private static $_routingTable = array();
@@ -137,7 +138,8 @@ class Byends_Request
     	else {
     		foreach (self::$_routingTable as $k => $v) {
     			if (preg_match($v, $pathInfo, $matches)) {
-    				return array($k => array_pop($matches));
+    				$matches[0] = $k;
+    				return $matches;
     			}
     		}
     	}
@@ -155,11 +157,11 @@ class Byends_Request
     {
         if ($this->_filter) {
             foreach ($this->_filter as $filter) {
-                $value = is_array($value) ? array_map($filter, $value) :
+                $value = is_array($value) ? Byends_Paragraph::callbackDeep($filter, $value) :
                 call_user_func($filter, $value);
             }
         }
-
+		
         $this->_filter = array();
         return $value;
     }
@@ -174,12 +176,12 @@ class Byends_Request
     public function filter()
     {
         $filters = func_get_args();
-
+		
         foreach ($filters as $filter) {
             $this->_filter[] = is_string($filter) && isset(self::$_supportFilters[$filter])
             ? self::$_supportFilters[$filter] : $filter;
         }
-
+		
         return $this;
     }
 
@@ -255,11 +257,13 @@ class Byends_Request
     {
         $result = array();
         $args = is_array($params) ? $params : func_get_args();
-
+		$tempFilter = $this->_filter;
+		
         foreach ($args as $arg) {
             $result[$arg] = $this->get($arg);
+            $this->_filter = $tempFilter;
         }
-
+		
         return $result;
     }
 

@@ -50,14 +50,12 @@ if( $options->rewrite ) {
 define( 'BYENDS_SEED_URL',				BYENDS_SITE_URL.$options->seed.'/' );
 define( 'BYENDS_TAG_URL',				BYENDS_SITE_URL.$options->tag.'/' );
 
-define( 'BYENDS_AUTH_SIGNIN_URL',		BYENDS_SITE_URL.'auth/signin' );
-define( 'BYENDS_AUTH_SIGNUP_URL',		BYENDS_SITE_URL.'auth/signup' );
-define( 'BYENDS_AUTH_SIGNOUT_URL',		BYENDS_SITE_URL.'auth/signout' );
-define( 'BYENDS_AUTH_FORGOT_URL',		BYENDS_SITE_URL.'auth/forgot' );
-
-define( 'BYENDS_USER_URL',				BYENDS_SITE_URL.'user/' );
-define( 'BYENDS_COOK_URL',				BYENDS_SITE_URL.'cook/' );
-define( 'BYENDS_LIKES_URL',				BYENDS_SITE_URL.'likes/' );
+define( 'BYENDS_AUTH_SIGNIN_URL',		BYENDS_SITE_URL.'signin' );
+define( 'BYENDS_AUTH_SIGNUP_URL',		BYENDS_SITE_URL.'signup' );
+define( 'BYENDS_AUTH_SIGNOUT_URL',		BYENDS_SITE_URL.'signout' );
+define( 'BYENDS_AUTH_FORGOT_URL',		BYENDS_SITE_URL.'forgot' );
+define( 'BYENDS_AUTH_OAUTH_URL',		BYENDS_SITE_URL.'oauth/' );
+define( 'BYENDS_AUTH_SETTINGS_URL',		BYENDS_SITE_URL.'settings' );
 
 /** 设置自动载入函数 */
 function __autoLoad($className)

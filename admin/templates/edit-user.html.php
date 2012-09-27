@@ -18,8 +18,11 @@
 		<dt>Avatar:</dt>
 		<dd><img src="<?php echo $user['avatar']; ?>" width="32" height="32" /></dd>
 		
-		<dt>Name:</dt>
-		<dd><input type="text" name="name" class="long" value="<?php echo $user['name']; ?>"/></dd>
+		<dt>Fullname:</dt>
+		<dd><input type="text" name="fullname" class="long" value="<?php echo $user['fullname']; ?>"/></dd>
+		
+		<dt>Username:</dt>
+		<dd><input type="text" name="username" class="long" value="<?php echo $user['username']; ?>"/></dd>
 		
 		<dt>Mail:</dt>
 		<dd><input type="text" name="mail" class="long" value="<?php echo $user['mail']; ?>"/></dd>

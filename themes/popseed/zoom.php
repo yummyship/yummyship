@@ -1,6 +1,5 @@
 <?php require 'header.php'; ?>
 
-
 <div id="zoomr">
 	<div id="zoomr_toolbar">
 		<div class="bg"></div>
@@ -13,7 +12,5 @@
 		<img id="zoomr_img" src="<?php echo $content['cover']; ?>" width="<?php echo $content['width']; ?>" height="<?php echo $content['height']; ?>" title="<?php echo $content['title']; ?>" alt="<?php echo $content['title']; ?>">
 	</div>
 </div>
-
-
 
 <?php require 'footer.php'; ?>

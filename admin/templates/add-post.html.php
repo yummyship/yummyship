@@ -7,10 +7,13 @@
 		<div class="warn">
 			<?php if( $status == 'title-empty' ) { ?>The Title was empty!<?php } ?>
 			<?php if( $status == 'cover-empty' ) { ?>The Cover was empty!<?php } ?>
+			<?php if( $status == 'ingredients-empty' ) { ?>The Ingredients was empty!<?php } ?>
+			<?php if( $status == 'steps-empty' ) { ?>The Steps was empty!<?php } ?>
 			<?php if( $status == 'not-logged-in' ) { ?>The name or password was not correct!<?php } ?>
 			<?php if( $status == 'download-failed' ) { ?>Couldn't load the image!<?php } ?>
 			<?php if( $status == 'duplicate-image' ) { ?>This image was already posted!<?php } ?>
 			<?php if( $status == 'thumbnail-failed' ) { ?>Couldn't create a thumbnail of the image!<?php } ?>
+			<?php if( $status == 'rename-failed' ) { ?>Couldn't rename the image!<?php } ?>
 		</div>
 	<?php } ?>
 	<dl>

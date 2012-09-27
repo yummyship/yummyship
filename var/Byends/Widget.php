@@ -33,7 +33,7 @@ abstract class Byends_Widget
 	 * @param array $sCondition
 	 * @return Byends_Widget
 	 */
-	public function setCondtion($sCondition = array()) 
+	public function setCondition($sCondition = array()) 
 	{
 		if ($sCondition) {
 			foreach ($sCondition as $k => $v) {

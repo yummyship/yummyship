@@ -9,23 +9,28 @@
 class Widget_Options extends Byends_Widget
 {
 	public static $options = null;
+	
 	private static $_routingTable = array(
-    	'index'        => '|^[/]?$|',
-    	'index_page'   => '|^/index/([0-9]+)$|',
-    	'auth'  	   => '|^/auth/([^/]+)$|',
-    	'user'  	   => '|^/user/([^/]+)$|',
-    	'cook'  	   => '|^/cook/([^/]+)$|',
-    	'cook_page'    => '|^/cook/([^/]+)/([0-9]+)$|',
-    	'likes'  	   => '|^/likes/([^/]+)$|',
-    	'likes_page'   => '|^/likes/([^/]+)/([0-9]+)$|',
-    	//'tag'		   => '|^/tag/([^/]+)$|',
-    	//'tag_page'   => '|^/tag/([^/]+)/([0-9]+)$|',
-    	'popular'      => '|^/popular$|',
-    	'popular_page' => '|^/popular/([0-9]+)$|',
-    	'random'       => '|^/random$|',
-    	'api'      	   => '|^/api$|',
-    	'apiDo'        => '|^/api/([^/]+)|',
-    	'feed'         => '|^/feed$|',
+    	'index'        		=> '|^[/]?$|',
+    	'index_page'   		=> '|^/index/([0-9]+)$|',
+    	'tag'		   		=> '|^/tag/([^/]+)$|',
+    	'tag_page'     		=> '|^/tag/([^/]+)/([0-9]+)$|',
+		'tags'         		=> '|^/tags$|',
+		'category'	   		=> '|^/category/([^/]+)$|',
+		'category_page'		=> '|^/category/([^/]+)/([0-9]+)$|',
+		'categorys'    		=> '|^/categorys$|',
+    	'popular'      		=> '|^/popular$|',
+    	'popular_page' 		=> '|^/popular/([0-9]+)$|',
+    	'random'       		=> '|^/random$|',
+		'auth_signin'  	   	=> '|^/signin$|',
+		'auth_signup'  	   	=> '|^/signup$|',
+		'auth_signout'  	=> '|^/signout$|',
+		'auth_forgot'  	   	=> '|^/forgot$|',
+		'auth_oauth'  	   	=> '|^/oauth/([^/]+)$|',
+    	'api'        		=> '|^/api/([^/]+)|',
+		'about'         	=> '|^/about$|',
+    	'feed'         		=> '|^/feed$|',
+		'help'         		=> '|^/help$|',
     );
 	
 	/**
@@ -88,15 +93,21 @@ class Widget_Options extends Byends_Widget
 			$temp[$v['name']] = $v['value'];
 		}
 		
-		self::$_routingTable['zoom']     = '|^/'.$temp['seed'].'/([0-9]+)/zoom$|';
-		self::$_routingTable['seed']     = '|^/'.$temp['seed'].'/([0-9]+)$|';
-		self::$_routingTable['tag'] 	 = '|^/'.$temp['tag'].'/([^/]+)$|';
-		self::$_routingTable['tag_page'] = '|^/'.$temp['tag'].'/([^/]+)/([0-9]+)$|';
+		self::$_routingTable['zoom']     		= '|^/'.$temp['seed'].'/([0-9]+)/zoom$|';
+		self::$_routingTable['seed']     		= '|^/'.$temp['seed'].'/([0-9]+)$|';
+		self::$_routingTable['tag'] 	 		= '|^/'.$temp['tag'].'/([^/]+)$|';
+		self::$_routingTable['tag_page'] 		= '|^/'.$temp['tag'].'/([^/]+)/([0-9]+)$|';
+		self::$_routingTable['user']			= '|^/([^/]+)$|';
+		self::$_routingTable['user_page'] 		= '|^/([^/]+)/([0-9]+)$|';
+		self::$_routingTable['user_likes'] 		= '|^/([^/]+)/likes$|';
+		self::$_routingTable['user_likes_page'] = '|^/([^/]+)/likes/([0-9]+)$|';
 		$temp['routingTable'] = self::$_routingTable;
+		$temp['systemKey'] = explode(',', $temp['systemKey']);
 		$temp['imageConfig'] = unserialize($temp['imageConfig']);
 		$temp['imageConfig']['coverSize'] = explode('|', $temp['imageConfig']['coverSize']);
 		$temp['imageConfig']['thumbSize'] = explode('|', $temp['imageConfig']['thumbSize']);
 		$temp['imageConfig']['stepSize']  = explode('|', $temp['imageConfig']['stepSize']);
+		$temp['imageConfig']['avatarSize']  = explode('|', $temp['imageConfig']['avatarSize']);
 		//$temp['absolutePath'] = substr($temp['absolutePath'], -1) == '/' ? substr($temp['absolutePath'], 0, -1) : $temp['absolutePath'];
 		return $temp;
 	}

@@ -46,12 +46,6 @@
 		<dt>AbsolutePath:</dt>
 		<dd><input type="text" name="options[absolutePath]" class="long" value="<?php echo $options->absolutePath; ?>"/></dd>
 		
-		<dt>Seed:</dt>
-		<dd><input type="text" name="options[seed]" value="<?php echo $options->seed; ?>"/></dd>
-		
-		<dt>DateWordLang:</dt>
-		<dd><input type="text" name="options[lang]" value="<?php echo $options->lang; ?>"/></dd>
-		
 		<dt>Rewrite:</dt>
 		<dd><select name="options[rewrite]"><?php echo $rewrite; ?></select></dd>
 		
@@ -82,14 +76,17 @@
 		<dt>StepSize:</dt>
 		<dd><input type="text" name="imageConfig[stepSize]" value="<?php echo implode('|', $options->imageConfig['stepSize']); ?>"/></dd>
 		
+		<dt>AvatarSize:</dt>
+		<dd><input type="text" name="imageConfig[avatarSize]" value="<?php echo implode('|', $options->imageConfig['avatarSize']); ?>"/></dd>
+		
 		<dt>JpegQuality:</dt>
 		<dd><input type="text" name="imageConfig[jpegQuality]" value="<?php echo $options->imageConfig['jpegQuality']; ?>"/></dd>
 		
-		<dt>Ads:</dt>
-		<dd><textarea id="text" name="options[ads]"><?php echo $options->ads; ?></textarea></dd>
+		<dt>SystemKey:</dt>
+		<dd><textarea name="options[systemKey]"><?php echo implode(',', $options->systemKey); ?></textarea></dd>
 		
 		<dt>Hiddens:</dt>
-		<dd><textarea id="text" name="options[hiddens]"><?php echo $options->hiddens; ?></textarea></dd>
+		<dd><textarea name="options[hiddens]"><?php echo $options->hiddens; ?></textarea></dd>
 		<dt></dt>
 		<dd>
 			<input type="submit" name="update" value="Save Settings" class="button"/>

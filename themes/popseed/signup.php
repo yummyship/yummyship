@@ -1,31 +1,32 @@
 <?php require 'header.php'; ?>
 
-<div id="container">
-	<div id="content" class="clearfix">
-		<div class="dialog clearfix">
-		    <div class="sign clearfix">
-		    	<h2>Sign Up to Lovewithyummy</h2>
-				<div class="signin">
-			    	<form id="signin-form" method="post" action="<?php echo BYENDS_AUTH_SIGNIN_URL; ?>">
-			    	<p><input type="text" name="username" id="username" class="text" placeholder="Username" tabindex="1" /></p>
-				    <p><input type="text" name="mail" id="mail" class="text" placeholder="Email" tabindex="2" /></p>
-				    <p><input type="text" name="password" id="password" class="text" placeholder="Password" tabindex="3" /></p>
-					<p><input type="text" name="repassword" id="repassword" class="text" placeholder="Repassword" tabindex="4" /></p>
-				    <p class="btn-area">
-						<button class="btn-signin" type="submit" tabindex="5">Sign Up</button>
-					</p>
-				    </form>
-			    </div>
-			    <div class="signin-auth clearfix">
-			    	<div class="logo-button-block"><a href="#" class="logo-btn fb"><div class="logo-outer"><span class="logo"></span></div><span>Sign in with <strong>Facebook</strong></span></a></div>
-			    	<div class="logo-button-block"><a href="#" class="logo-btn google"><div class="logo-outer"><span class="logo"></span></div><span>Sign in with <strong>Google</strong></span></a></div>
-			    	<div class="logo-button-block"><a href="#" class="logo-btn twitter"><div class="logo-outer"><span class="logo"></span></div><span>Sign in with <strong>Twitter</strong></span></a></div>
-			    </div>
+<div id="page">
+	<div id="page-box" class="clearfix">
+		<div class="sign signup">
+			<h2>Create Yummyship Account</h2>
+			<div class="sign-box relative">
+				<?php if($notice->have() && in_array($notice->noticeType, array('success', 'notice', 'error'))): ?>
+				<div class="radius message <?php $notice->noticeType(); ?>">
+				<ul>
+					<?php $notice->lists(); ?>
+				</ul>
+				</div>
+				<?php endif; ?>
+		    	<form id="signup-form" method="post">
+			    <p><input type="text" name="mail" id="mail" class="ipt-medium text-34" value="<?php echo Byends_Cookie::get('__byends_remember_signup_mail', @$_SESSION['__byends_oAuth_mail']); ?>" placeholder="Email" <?php if($current=='auth_sign_fbcallback'){?>readonly="readonly"<?php }?> tabindex="1" /></p>
+			    <p><input type="text" name="fullname" id="fullname" class="ipt-medium text-34" value="<?php echo Byends_Cookie::get('__byends_remember_signup_fullname', @$_SESSION['__byends_oAuth_fullname']); ?>" maxlength="30" placeholder="Full Name" tabindex="2" /></p>
+			    <p>
+			    	<input type="text" name="username" id="username" class="ipt-medium text-34" value="<?php echo Byends_Cookie::get('__byends_remember_signup_username', @$_SESSION['__byends_oAuth_username']); ?>" maxlength="25" placeholder="Username" tabindex="3" />
+			    	<span class="username-usage"><?php echo $options->domain.$subAbsolutePath; ?>/<span id="profile-url"><?php echo Byends_Cookie::get('__byends_remember_signup_username', @$_SESSION['__byends_oAuth_username']); ?></span></span>
+			    </p>
+			    <p class="btn-area">
+					<input class="btn-medium" name="signup" type="submit" tabindex="4" value="Create Account" />
+					<input type="hidden" name="code" value="<?php echo @$_SESSION['__byends_oAuth_code']; ?>" />
+				</p>
+			    </form>
 		    </div>
-		    <p class="sign-bottom">
-				Been here before? <a href="<?php echo BYENDS_AUTH_SIGNIN_URL; ?>">Sign In</a>
-			</p>
 		</div>
+		
 	</div>
 </div>
 

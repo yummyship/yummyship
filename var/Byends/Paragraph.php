@@ -52,6 +52,21 @@ class Byends_Paragraph
      */
     private static $_lockedBlocks = array('<p></p>' => '');
     
+    /**
+     * 允许的标签
+     *
+     * @access private
+     * @var array
+     */
+    private static $_allowableTags = '';
+    
+    /**
+     * 允许的属性
+     *
+     * @access private
+     * @var array
+     */
+    private static $_allowableAttributes = array();
     
     /**
      * 生成唯一的id, 为了速度考虑最多支持1万个tag的处理
@@ -102,6 +117,170 @@ class Byends_Paragraph
         }
         
         return $text;
+    }
+    
+    /**
+     * 锁定标签回调函数
+     *
+     * @access private
+     * @param array $matches 匹配的值
+     * @return string
+     */
+    public static function __lockHTML(array $matches)
+    {
+    	$guid = '<code>' . uniqid(time()) . '</code>';
+    	self::$_lockedBlocks[$guid] = $matches[0];
+    	return $guid;
+    }
+
+    /**
+     * html标签过滤
+     *
+     * @access public
+     * @param string $tag 标签
+     * @param string $attrs 属性
+     * @return string
+     */
+    public static function __tagFilter($tag, $attrs)
+    {
+    
+    	$suffix = '';
+    	$tag = strtolower($tag);
+    
+    	if (false === strpos(self::$_allowableTags, "|{$tag}|")) {
+    		return '';
+    	}
+    
+    	if (!empty($attrs)) {
+    		$result = self::__parseAtttrs($attrs);
+    		$attrs = '';
+    
+    		foreach ($result as $name => $val) {
+    			$quote = '';
+    			$lname = strtolower($name);
+    			$lval = self::__attrTrim($val, $quote);
+    
+    			if (in_array($lname, self::$_allowableAttributes[$tag])) {
+    				$attrs .= ' ' . $name . (empty($val) ? '' : '=' . $val);
+    			}
+    		}
+    	}
+    
+    	return "<{$tag}{$attrs}>";
+    }
+
+    /**
+     * 自闭合标签过滤
+     *
+     * @access public
+     * @param array $matches 匹配值
+     * @return string
+     */
+    public static function __closeTagFilter($matches)
+    {
+    	$tag = strtolower($matches[1]);
+    	return false === strpos(self::$_allowableTags, "|{$tag}|") ? '' : "</{$tag}>";
+    }
+
+    /**
+     * 解析属性
+     *
+     * @access public
+     * @param string $attrs 属性字符串
+     * @return array
+     */
+    public static function __parseAtttrs($attrs)
+    {
+    	$attrs = trim($attrs);
+    	$len = strlen($attrs);
+    	$pos = -1;
+    	$result = array();
+    	$quote = '';
+    	$key = '';
+    	$value = '';
+    
+    	for ($i = 0; $i < $len; $i ++) {
+    		if ('=' != $attrs[$i] && !ctype_space($attrs[$i]) && -1 == $pos) {
+    			$key .= $attrs[$i];
+    
+    			/** 最后一个 */
+    			if ($i == $len - 1) {
+    				if ('' != ($key = trim($key))) {
+    					$result[$key] = '';
+    					$key = '';
+    					$value = '';
+    				}
+    			}
+    
+    		} else if (ctype_space($attrs[$i]) && -1 == $pos) {
+    			$pos = -2;
+    		} else if ('=' == $attrs[$i] && 0 > $pos) {
+    			$pos = 0;
+    		} else if (('"' == $attrs[$i] || "'" == $attrs[$i]) && 0 == $pos) {
+    			$quote = $attrs[$i];
+    			$value .= $attrs[$i];
+    			$pos = 1;
+    		} else if ($quote != $attrs[$i] && 1 == $pos) {
+    			$value .= $attrs[$i];
+    		} else if ($quote == $attrs[$i] && 1 == $pos) {
+    			$pos = -1;
+    			$value .= $attrs[$i];
+    			$result[trim($key)] = $value;
+    			$key = '';
+    			$value = '';
+    		} else if ('=' != $attrs[$i] && !ctype_space($attrs[$i]) && -2 == $pos) {
+    			if ('' != ($key = trim($key))) {
+    				$result[$key] = '';
+    			}
+    
+    			$key = '';
+    			$value = '';
+    			$pos = -1;
+    			$key .= $attrs[$i];
+    		}
+    	}
+    
+    	return $result;
+    }
+
+    /**
+     * 清除属性空格
+     *
+     * @access public
+     * @param string $attr 属性
+     * @param string $quote 引号
+     * @return string
+     */
+    public static function __attrTrim($attr, &$quote)
+    {
+    	$attr = trim($attr);
+    	$attr_len = strlen($attr);
+    	$quote = '';
+    
+    	if ($attr_len >= 2 &&
+    			('"' == $attr[0] || "'" == $attr[0])
+    			&& $attr[0] == $attr[$attr_len - 1]) {
+    		$quote = $attr[0];
+    		return trim(substr($attr, 1, -1));
+    	}
+    
+    	return $attr;
+    }
+    
+    /**
+     * 将url中的非法xss去掉时的数组回调过滤函数
+     *
+     * @access public
+     * @param string $string 需要过滤的字符串
+     * @return string
+     */
+    public static function __removeUrlXss($string)
+    {
+    	$string = str_replace(array('%0d', '%0a'), '', strip_tags($string));
+    	return preg_replace(array(
+    			"/\(\s*(\"|')/i",           //函数开头
+    			"/(\"|')\s*\)/i",           //函数结尾
+    	), '', $string);
     }
     
     /**
@@ -295,20 +474,6 @@ class Byends_Paragraph
     }
 
     /**
-     * 锁定标签回调函数
-     *
-     * @access private
-     * @param array $matches 匹配的值
-     * @return string
-     */
-    public static function __lockHTML(array $matches)
-    {
-    	$guid = '<code>' . uniqid(time()) . '</code>';
-    	self::$_lockedBlocks[$guid] = $matches[0];
-    	return $guid;
-    }
-    
-    /**
      * 生成缩略名
      *
      * @access public
@@ -386,6 +551,26 @@ class Byends_Paragraph
     }
     
     /**
+     * 递归回调指定方法遍历数组
+     * @param mixed $func
+     * @param mixed $value
+     * @return mixed
+     */
+    public static function callbackDeep($func, $value)
+    {
+    	if (is_array($value)) {
+    		foreach ($value as $k => $v) {
+    			$value[$k] = is_array($v) ? self::callbackDeep($func, $v) : call_user_func($func, $v);
+    		}
+    	}
+    	else {
+    		$value = call_user_func($func, $value);
+    	}
+    	
+    	return $value;
+    }
+    
+    /**
      * 去掉html中的分段
      *
      * @access public
@@ -454,7 +639,6 @@ class Byends_Paragraph
      * 使用方法:
      * <code>
      * $input = '这是一段被截断的html文本<a href="#"';
-     * echo Typecho_Common::fixHtml($input);
      * //output: 这是一段被截断的html文本
      * </code>
      *
@@ -462,44 +646,69 @@ class Byends_Paragraph
      * @param string $string 需要修复处理的字符串
      * @return string
      */
-    public static function fixHtml($string)
+	public static function fixHtml($string)
     {
-    	//关闭自闭合标签
-    	$startPos = strrpos($string, "<");
+        //关闭自闭合标签
+        $startPos = strrpos($string, "<");
+		
+        if (false === $startPos) {
+            return $string;
+        }
+        
+        $trimString = substr($string, $startPos);
+
+        if (false === strpos($trimString, ">")) {
+            $string = substr($string, 0, $startPos);
+        }
+
+        //非自闭合html标签列表
+        preg_match_all("/<([_0-9a-zA-Z-\:]+)\s*([^>]*)>/is", $string, $startTags);
+        preg_match_all("/<\/([_0-9a-zA-Z-\:]+)>/is", $string, $closeTags);
+
+        if (!empty($startTags[1]) && is_array($startTags[1])) {
+            krsort($startTags[1]);
+            $closeTagsIsArray = is_array($closeTags[1]);
+            foreach ($startTags[1] as $key => $tag) {
+                $attrLength = strlen($startTags[2][$key]);
+                if ($attrLength > 0 && "/" == trim($startTags[2][$key][$attrLength - 1])) {
+                    continue;
+                }
+                if (!empty($closeTags[1]) && $closeTagsIsArray) {
+                    if (false !== ($index = array_search($tag, $closeTags[1]))) {
+                        unset($closeTags[1][$index]);
+                        continue;
+                    }
+                }
+                $string .= "</{$tag}>";
+            }
+        }
+        
+        return preg_replace("/\<br\s*\/\>\s*\<\/p\>/is", '</p>', $string);
+    }
     
-    	if (false == $startPos) {
-    		return $string;
+    /**
+     * 闭合html标签 
+     * @param string $html
+     * @return string
+     */
+    public static function closetags($html) {
+    	preg_match_all('#<(?!meta|img|link|br|hr|input)([a-z]+)(?: .*)?(?<![/|/ ])>#iU', $html, $result);
+    	$openedtags = $result[1];
+    	preg_match_all('#</([a-z]+)>#iU', $html, $result);
+    	$closedtags = $result[1];
+    	$len_opened = count($openedtags);
+    	if (count($closedtags) == $len_opened) {
+    		return $html;
     	}
-    
-    	$trimString = substr($string, $startPos);
-    
-    	if (false === strpos($trimString, ">")) {
-    		$string = substr($string, 0, $startPos);
-    	}
-    
-    	//非自闭合html标签列表
-    	preg_match_all("/<([_0-9a-zA-Z-\:]+)\s*([^>]*)>/is", $string, $startTags);
-    	preg_match_all("/<\/([_0-9a-zA-Z-\:]+)>/is", $string, $closeTags);
-    
-    	if (!empty($startTags[1]) && is_array($startTags[1])) {
-    		krsort($startTags[1]);
-    		$closeTagsIsArray = is_array($closeTags[1]);
-    		foreach ($startTags[1] as $key => $tag) {
-    			$attrLength = strlen($startTags[2][$key]);
-    			if ($attrLength > 0 && "/" == trim($startTags[2][$key][$attrLength - 1])) {
-    				continue;
-    			}
-    			if (!empty($closeTags[1]) && $closeTagsIsArray) {
-    				if (false !== ($index = array_search($tag, $closeTags[1]))) {
-    					unset($closeTags[1][$index]);
-    					continue;
-    				}
-    			}
-    			$string .= "</{$tag}>";
+    	$openedtags = array_reverse($openedtags);
+    	for ($i=0; $i < $len_opened; $i++) {
+    		if (!in_array($openedtags[$i], $closedtags)) {
+    			$html .= '</'.$openedtags[$i].'>';
+    		} else {
+    			unset($closedtags[array_search($openedtags[$i], $closedtags)]);
     		}
     	}
-    
-    	return preg_replace("/\<br\s*\/\>\s*\<\/p\>/is", '</p>', $string);
+    	return $html;
     }
     
     /**
@@ -507,7 +716,7 @@ class Byends_Paragraph
      * 使用方法:
      * <code>
      * $input = '<a href="http://test/test.php" title="example">hello</a>';
-     * $output = Typecho_Common::stripTags($input, <a href="">);
+     * $output = Byends_Paragraph::stripTags($input, <a href="">);
      * echo $output;
      * //display: '<a href="http://test/test.php">hello</a>'
      * </code>
@@ -577,7 +786,7 @@ class Byends_Paragraph
     			}
     		}
     
-    		$html = preg_replace_callback("/<\/([_0-9a-z-]+)>/is", array('Typecho_Common', '__closeTagFilter'), $html);
+    		$html = preg_replace_callback("/<\/([_0-9a-z-]+)>/is", array('Byends_Paragraph', '__closeTagFilter'), $html);
     		$html = self::releaseHTML($html);
     	} else {
     		$html = strip_tags($html);
@@ -585,6 +794,76 @@ class Byends_Paragraph
     
     	//去掉注释
     	return preg_replace("/<\!\-\-[^>]*\-\->/s", '', $html);
+    }
+
+    /**
+     * 过滤HTML标签
+     * strip the text from an html document
+     * @param string $document
+     */
+    public static function stripBrief($document)
+    {
+    	$document = self::fixHtml($document);
+    	
+    	// I didn't use preg eval (//e) since that is only available in PHP 4.0.
+    	// so, list your entities one by one here. I included some of the
+    	// more common ones.
+    
+    	$search = array("'<script[^>]*?>.*?</script>'si",	// strip out javascript
+    			"'<style[^>]*?>.*?</style>'si",	    // strip out style
+    			"/<\!\-\-[^>]*\-\->/s",				// strip out remark
+    			"'<[\/\!]*?[^<>]*?>'si",			// strip out html tags
+    			"'([\r\n])[\s]+'",					// strip out white space
+    			"'&(quot|#34|#034|#x22);'i",		// replace html entities
+    			"'&(amp|#38|#038|#x26);'i",			// added hexadecimal values
+    			"'&(lt|#60|#060|#x3c);'i",
+    			"'&(gt|#62|#062|#x3e);'i",
+    			"'&(nbsp|#160|#xa0);'i",
+    			"'&(iexcl|#161);'i",
+    			"'&(cent|#162);'i",
+    			"'&(pound|#163);'i",
+    			"'&(copy|#169);'i",
+    			"'&(reg|#174);'i",
+    			"'&(deg|#176);'i",
+    			"'&(#39|#039|#x27);'",
+    			"'&(euro|#8364);'i",				// europe
+    			"'&a(uml|UML);'",					// german
+    			"'&o(uml|UML);'",
+    			"'&u(uml|UML);'",
+    			"'&A(uml|UML);'",
+    			"'&O(uml|UML);'",
+    			"'&U(uml|UML);'",
+    			"'&szlig;'i",
+    	);
+    	$replace = array(	"",
+    			"",
+    			"",
+    			"",
+    			"\\1",
+    			"\"",
+    			"&",
+    			"<",
+    			">",
+    			" ",
+    			chr(161),
+    			chr(162),
+    			chr(163),
+    			chr(169),
+    			chr(174),
+    			chr(176),
+    			chr(39),
+    			chr(128),
+    			"�",
+    			"�",
+    			"�",
+    			"�",
+    			"�",
+    			"�",
+    			"�",
+    	);
+    
+    	$text = preg_replace($search, $replace, $document);
+    	return $text;
     }
     
     /**
@@ -602,7 +881,7 @@ class Byends_Paragraph
     /**
      * 将url中的非法字符串过滤
      *
-     * @access private
+     * @access public
      * @param string $string 需要过滤的url
      * @return string
      */
@@ -623,23 +902,7 @@ class Byends_Paragraph
     	$params = array_map(array('Byends_Paragraph', '__removeUrlXss'), $params);
     	return self::buildUrl($params);
     }
-    
-    /**
-     * 将url中的非法xss去掉时的数组回调过滤函数
-     *
-     * @access private
-     * @param string $string 需要过滤的字符串
-     * @return string
-     */
-    public static function __removeUrlXss($string)
-    {
-    	$string = str_replace(array('%0d', '%0a'), '', strip_tags($string));
-    	return preg_replace(array(
-    			"/\(\s*(\"|')/i",           //函数开头
-    			"/(\"|')\s*\)/i",           //函数结尾
-    	), '', $string);
-    }
-    
+
     /**
      * 处理XSS跨站攻击的过滤函数
      *
@@ -793,77 +1056,7 @@ class Byends_Paragraph
     		return sizeof($info[0]);
     	}
     }
-    
-    /**
-     * 过滤HTML标签
-     * strip the text from an html document
-     * @param string $document
-     */
-    public static function stripBrief($document)
-    {
-    
-    	// I didn't use preg eval (//e) since that is only available in PHP 4.0.
-    	// so, list your entities one by one here. I included some of the
-    	// more common ones.
-    
-    	$search = array("'<script[^>]*?>.*?</script>'si",	// strip out javascript
-    			"'<style[^>]*?>.*?</style>'si",	    // strip out style
-    			"/<\!\-\-[^>]*\-\->/s",				// strip out remark
-    			"'<[\/\!]*?[^<>]*?>'si",			// strip out html tags
-    			"'([\r\n])[\s]+'",					// strip out white space
-    			"'&(quot|#34|#034|#x22);'i",		// replace html entities
-    			"'&(amp|#38|#038|#x26);'i",			// added hexadecimal values
-    			"'&(lt|#60|#060|#x3c);'i",
-    			"'&(gt|#62|#062|#x3e);'i",
-    			"'&(nbsp|#160|#xa0);'i",
-    			"'&(iexcl|#161);'i",
-    			"'&(cent|#162);'i",
-    			"'&(pound|#163);'i",
-    			"'&(copy|#169);'i",
-    			"'&(reg|#174);'i",
-    			"'&(deg|#176);'i",
-    			"'&(#39|#039|#x27);'",
-    			"'&(euro|#8364);'i",				// europe
-    			"'&a(uml|UML);'",					// german
-    			"'&o(uml|UML);'",
-    			"'&u(uml|UML);'",
-    			"'&A(uml|UML);'",
-    			"'&O(uml|UML);'",
-    			"'&U(uml|UML);'",
-    			"'&szlig;'i",
-    	);
-    	$replace = array(	"",
-    			"",
-    			"",
-    			"",
-    			"\\1",
-    			"\"",
-    			"&",
-    			"<",
-    			">",
-    			" ",
-    			chr(161),
-    			chr(162),
-    			chr(163),
-    			chr(169),
-    			chr(174),
-    			chr(176),
-    			chr(39),
-    			chr(128),
-    			"�",
-    			"�",
-    			"�",
-    			"�",
-    			"�",
-    			"�",
-    			"�",
-    	);
-    		
-    	$text = preg_replace($search,$replace,$document);
-    
-    	return $text;
-    }
-    
+ 
     /**
      * 将路径转化为链接
      *

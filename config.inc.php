@@ -61,12 +61,13 @@ $dbCfg = array(
 $db = new Byends_Db($dbCfg['host'], $dbCfg['database'], $dbCfg['user'], $dbCfg['password']);
 $db->set($db);
 
-define( 'BYENDS_TABLE_CONTENTS',	$dbCfg['prefix'].'contents' );
-define( 'BYENDS_TABLE_USERS',		$dbCfg['prefix'].'users' );
-define( 'BYENDS_TABLE_METAS',		$dbCfg['prefix'].'metas' );
-define( 'BYENDS_TABLE_RELATE',		$dbCfg['prefix'].'relationships' );
-define( 'BYENDS_TABLE_OPTIONS',		$dbCfg['prefix'].'options' );
-define( 'BYENDS_TABLE_FAVORITES',	$dbCfg['prefix'].'favorites' );
+define( 'BYENDS_TABLE_CONTENTS',		$dbCfg['prefix'].'contents' );
+define( 'BYENDS_TABLE_USERS',			$dbCfg['prefix'].'users' );
+define( 'BYENDS_TABLE_OAUTH_USERS',		$dbCfg['prefix'].'oauth_users' );
+define( 'BYENDS_TABLE_METAS',			$dbCfg['prefix'].'metas' );
+define( 'BYENDS_TABLE_RELATE',			$dbCfg['prefix'].'relationships' );
+define( 'BYENDS_TABLE_OPTIONS',			$dbCfg['prefix'].'options' );
+define( 'BYENDS_TABLE_FAVORITES',		$dbCfg['prefix'].'favorites' );
 
 /**
  * 用于调试

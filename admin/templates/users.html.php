@@ -22,7 +22,7 @@
 			</td>
 			<td class="uid"><?php echo $u['uid']; ?></td>
 			<td class="name">
-				<a href="?user&edit&uid=<?php echo $u['uid']; ?>"><?php echo $u['name']; ?></a>
+				<a href="?user&edit&uid=<?php echo $u['uid']; ?>"><?php echo $u['fullname']; ?></a>
 			</td>
 			<td class="mail">
 				<?php echo $u['mail'];?>

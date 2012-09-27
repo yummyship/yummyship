@@ -10,11 +10,14 @@ class Widget_Content extends Widget_Abstract
 {
 	protected $cid = null;
 	protected $postModified = 0;
+	protected $isFavoritesId = array(
+		'isSelected' => false,
+		'data' => array()
+	);
 	
 	protected $coverHash = null;
 	protected $coverExt= null;
 	protected $coverSize = null;
-	
 	protected $stepImageUrl = null;
 	
 	public $type = array(
@@ -90,11 +93,18 @@ class Widget_Content extends Widget_Abstract
 	 */
 	public function select() 
 	{
+		if (null !== $this->uid && !$this->isFavoritesId['isSelected']) {
+			$instanceCook = Widget_Cook::getInstance();
+			$this->isFavoritesId['isSelected'] = true;
+			$this->isFavoritesId['data'] = $instanceCook->favoritesId();
+		}
+		
 		if ($this->sCondition['cid'] > 0) {
 			$condition = $this->sCondition['status'] ? ' AND c.status = :3 ' : '';
 			$content = $this->db->getRow(
 				'SELECT
-					'.$this->select.', u.name AS userName
+					'.$this->select.', u.fullname, u.username, u.url, u.created, u.description, 
+					u.avatar, u.status, u.likesNum, u.publishedNum 
 				FROM
 					'.BYENDS_TABLE_CONTENTS.' c
 				LEFT JOIN '.BYENDS_TABLE_USERS.' u
@@ -111,6 +121,7 @@ class Widget_Content extends Widget_Abstract
 			$this->cid = $content['cid'];
 			$this->postModified = $content['modified'];
 			$this->processContent( $content );
+			$this->instanceUser->processUser($content);
 			$this->instanceTag->processTag($this->cid, $content);
 			return $content;
 		}
@@ -126,7 +137,8 @@ class Widget_Content extends Widget_Abstract
 			
 			$contents = $this->db->query(
 				'SELECT SQL_CALC_FOUND_ROWS
-					'.$this->select.', u.name AS userName
+					'.$this->select.', u.fullname, u.username, u.url, u.created, u.description, 
+					u.avatar, u.status, u.likesNum, u.publishedNum 
 				FROM
 					'.BYENDS_TABLE_CONTENTS.' c
 				LEFT JOIN '.BYENDS_TABLE_USERS.' u
@@ -149,6 +161,7 @@ class Widget_Content extends Widget_Abstract
 			
 			foreach( array_keys($contents) as $i ) {
 				$this->processContent($contents[$i]);
+				$this->instanceUser->processUser($contents[$i]);
 				$this->instanceTag->processTag($contents[$i]['cid'], $contents[$i]);
 			}
 			
@@ -162,35 +175,42 @@ class Widget_Content extends Widget_Abstract
 	 * @access public
 	 * @return array
 	 */
-	public function selectRandom($num = 1) 
+	public function selectRandom($num = 1, $noIds = array()) 
 	{
-		$content = $this->db->query(
-			'SELECT 
-				'.$this->select.'
-			FROM 
-				'.BYENDS_TABLE_CONTENTS.' AS c
-			JOIN (
-					SELECT ROUND( RAND() * ( (SELECT MAX(cid) FROM '.BYENDS_TABLE_CONTENTS.') - (SELECT MIN(cid) FROM '.BYENDS_TABLE_CONTENTS.') )
-							+ (SELECT MIN(cid) FROM '.BYENDS_TABLE_CONTENTS.') )
-							AS cid ) AS m
-			WHERE
-				c.cid >= m.cid AND c.type = :1 AND c.status = :2
-			ORDER BY
-				c.cid
-			LIMIT
-				:3',
-				'post', 'publish', $num
-		);
+		$contents = array();
+		for ($i = 0;$i < $num;$i++) {
+			$content = $this->db->getRow(
+				'SELECT 
+					'.$this->select.'
+				FROM 
+					'.BYENDS_TABLE_CONTENTS.' AS c
+				JOIN (
+						SELECT ROUND( RAND() * (SELECT MAX(cid)-MIN(cid) FROM '.BYENDS_TABLE_CONTENTS.')
+								+ (SELECT MIN(cid) FROM '.BYENDS_TABLE_CONTENTS.') )
+								AS cid ) AS m
+				WHERE
+					c.cid >= m.cid AND c.type = :1 AND c.status = :2 
+				ORDER BY
+					c.cid
+				LIMIT
+					1',
+					'post', 'publish'
+			);
+			if (!in_array($content['cid'], $noIds)) {
+				$noIds[] = $content['cid'];
+				$contents[] = $content;
+			}
+		}
 		
-		if( empty($content) ) {
+		if( empty($contents) ) {
 			return array();
 		}
 		
-		foreach(array_keys($content) as $i) {
-			$this->processContent($content[$i]);
+		foreach(array_keys($contents) as $i) {
+			$this->processContent($contents[$i]);
 		}
 	
-		return $content;
+		return $contents;
 	}
 	
 	/**
@@ -329,6 +349,8 @@ class Widget_Content extends Widget_Abstract
 		$instanceCook = Widget_Cook::getInstance();
 		$instanceCook->doFavorite($cid, 'unsaved');
 		$this->db->query( 'DELETE FROM '.BYENDS_TABLE_CONTENTS.' WHERE cid = :1', $cid );
+		$this->refreshPublishedNum($this->uid);
+		
 		return true;
 	}
 	
@@ -370,16 +392,25 @@ class Widget_Content extends Widget_Abstract
 			return 'not-logged-in';
 		}
 		
-		if (!$this->request->filter('trim')->title) {
+		$content = $this->request->filter('stripTags', 'trim')->from('created', 'title', 'cover',
+				'brief', 'ingredients', 'dosage', 'steps', 'stepsImage', 'tips');
+
+		if (!$content['title']) {
 			return 'title-empty';
 		}
 		
-		if (!$this->request->filter('trim')->cover) {
+		if (!$content['cover']) {
 			return 'cover-empty';
 		}
 		
-		$content = $this->request->filter('trim')->from( 'created', 'title', 'cover', 
-				'brief', 'ingredients', 'dosage', 'steps', 'stepsImage', 'tips' );
+		if (!implode('', $content['ingredients'])) {
+			return 'ingredients-empty';
+		}
+		
+		if (!implode('', $content['steps'])) {
+			return 'steps-empty';
+		}
+		
 		$created = $content['created'] ? strtotime($content['created']) : $this->timeStamp;
 		$content['status'] = 'publish';
 		
@@ -390,9 +421,6 @@ class Widget_Content extends Widget_Abstract
 		}
 		
 		//处理 ingredients
-		if (!$content['ingredients']) {
-			return 'ingredients-empty';
-		}
 		$tempIng = $tempDosage = array();
 		foreach ($content['ingredients'] as $k => $v) {
 			if ($v && !in_array($v, $tempIng)) { //去掉空值 和 重复值
@@ -402,9 +430,6 @@ class Widget_Content extends Widget_Abstract
 		}
 		
 		//处理 steps
-		if (!$content['steps']) {
-			return 'steps-empty';
-		}
 		$tempStep = $steps = array();
 		foreach ($content['steps'] as $k => $v) {
 			if ($v && !in_array($v, $tempStep)) { //去掉空值 和 重复值
@@ -458,6 +483,9 @@ class Widget_Content extends Widget_Abstract
 				array('cid' => $cid),
 				array('ingredients' => serialize($ingredients))
 		);
+		
+		$this->refreshPublishedNum($this->uid);
+		
 		return true;
 	}
 	
@@ -471,22 +499,29 @@ class Widget_Content extends Widget_Abstract
 			return 'not-logged-in';
 		}
 		
-		if (!($cid = $this->request->filter('trim', 'int')->cid)) {
-			return 'cid-empty';
-		}
+		$content = $this->request->filter('stripTags', 'trim')->from('cid', 'modified', 'title', 'cover',
+				'brief', 'ingredients', 'dosage', 'steps', 'stepsImage', 'tips');
 		
-		if (!$this->request->filter('trim')->title) {
+		if (!$content['title']) {
 			return 'title-empty';
 		}
 		
-		if (!$this->request->filter('trim')->cover) {
+		if (!$content['cover']) {
 			return 'cover-empty';
 		}
+		
+		if (!implode('', $content['ingredients'])) {
+			return 'ingredients-empty';
+		}
+		
+		if (!implode('', $content['steps'])) {
+			return 'steps-empty';
+		}
+		
 		$data = array();
-		$content = $this->request->filter('trim')->from( 'cid', 'modified', 'title', 'cover',
-				'brief', 'ingredients', 'dosage', 'steps', 'stepsImage', 'tips' );
+		$cid = $content['cid'];
 		$modified = $content['modified'] ? strtotime($content['modified']) : $this->timeStamp;
-		$post = $this->setCondtion(array('cid' => $cid, 'status' => null))->select();
+		$post = $this->setCondition(array('cid' => $cid, 'status' => null))->select();
 		$data['modified'] = Byends_Date::gmtTime($modified);
 		
 		
@@ -503,9 +538,6 @@ class Widget_Content extends Widget_Abstract
 		
 		
 		//处理 ingredients
-		if (!$content['ingredients']) {
-			return 'ingredients-empty';
-		}
 		$tempIng = $tempDosage = array();
 		foreach ($content['ingredients'] as $k => $v) {
 			if ($v && !in_array($v, $tempIng)) { //去掉空值 和 重复值
@@ -521,9 +553,6 @@ class Widget_Content extends Widget_Abstract
 		$data['ingredients'] = serialize($ingredients);
 		
 		//处理 steps
-		if (!$content['steps']) {
-			return 'steps-empty';
-		}
 		$tempStep = $steps = array();
 		foreach ($content['steps'] as $k => $v) {
 			if ($v && !in_array($v, $tempStep)) { //去掉空值 和 重复值
@@ -573,7 +602,42 @@ class Widget_Content extends Widget_Abstract
 	 */
 	public function updateViews($cid) 
 	{
+		if (!$cid) {
+			return false;
+		}
 		$this->db->query( 'UPDATE '.BYENDS_TABLE_CONTENTS.' SET views = views + 1 WHERE cid = :1', $cid );
+		return true;
+	}
+	
+	/**
+	 * 刷新用户的发布数量
+	 * @param integar $uid
+	 * @return boolean
+	 */
+	public function refreshPublishedNum($uid)
+	{
+		if (!$uid) {
+			return false;
+		}
+		
+		$contents = $this->db->query(
+			'SELECT SQL_CALC_FOUND_ROWS
+				cid
+			FROM
+				'.BYENDS_TABLE_CONTENTS.' 
+			WHERE
+				type = :1 AND status = :2 ',
+			'post', 'publish'
+		);
+		
+		$publishedNum = $this->db->foundRows();
+		
+		$this->db->updateRow(
+			BYENDS_TABLE_USERS,
+			array( 'uid' => $uid ),
+			array( 'publishedNum' => $publishedNum )
+		);
+		
 		return true;
 	}
 	
@@ -586,23 +650,21 @@ class Widget_Content extends Widget_Abstract
 		$content['created'] = Byends_Date::timeStamp( $content['created'] );
 		$content['modified'] = Byends_Date::timeStamp( $content['modified'] );
 		$datePath = date( 'Y/m/', $content['modified'] );
-		$content['title'] = htmlspecialchars( $content['title'] );
+		$content['title'] = htmlspecialchars($content['title']);
 		$content['permalink'] = BYENDS_SEED_URL.$content['cid'];
 		$content['zoomPermalink'] = BYENDS_SEED_URL.$content['cid'].'/zoom';
 		$content['stripBrief'] = Byends_Paragraph::stripBrief( $content['brief'] );
+		$content['brief'] = htmlspecialchars($content['brief']);
+		$content['tips'] = htmlspecialchars($content['tips']);
 		$content['ingredients'] = @unserialize($content['ingredients']);
-		$content['steps'] = @unserialize($content['steps']);
+		$content['steps'] = Byends_Paragraph::callbackDeep('htmlspecialchars', @unserialize($content['steps']));
 		list($w, $h) = @explode('|', $content['coverSize']);
 		$content['width'] = $w;
 		$content['height'] = $h;
 		$content['viewsWord'] = $this->viewsWord($content['views']);
 		$content['dateWord'] = Byends_Date::dateWord($content['modified'], $this->timeStamp, $this->options->lang);
-		$content['favorite'] = false;
+		$content['favorite'] = in_array($content['cid'], $this->isFavoritesId['data']);
 		
-		if (null !== $this->uid) {
-			$instanceCook = Widget_Cook::getInstance();
-			$content['favorite'] = $instanceCook->favoriteExists($content['cid']);
-		}
 		$cover = $content['coverHash'].'.'.$content['coverExt'];
 		$content['thumb'] = is_file(__BYENDS_ROOT_DIR__.__BYENDS_THUMBS_DIR__.$datePath.$cover) ? BYENDS_STATIC_URL
 							.__BYENDS_THUMBS_DIR__ . $datePath . $cover : BYENDS_NO_IMAGE_STATIC_URL;
