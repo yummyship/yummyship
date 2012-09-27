@@ -2,7 +2,7 @@
 
 当前版本 1.0.0 beta
 
-最后更新时间 2012-09-13
+最后更新时间 2012-09-27
 
 ## 简要说明
 ```
@@ -14,6 +14,7 @@ var       			--- 内核文件（注意类的命名方式 ：文件夹名_类名 
 var/init.php		--- 初始化入口
 var/Byends 			--- Widget 基类
 var/Widget			--- 扩展类，这里的类一般需要 继承 Abstract 数据抽象类
+var/OAuth			--- 第三方登录
 
 .htaccess			--- rewrite 规则
 config.inc.php		--- 数据库配置
