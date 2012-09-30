@@ -8,7 +8,11 @@
  */
 class Widget_Cook extends Widget_Content
 {
-
+	protected $isFavoritesId = array(
+			'isSelected' => false,
+			'data' => array()
+	);
+	
 	/**
 	 * 单例句柄
 	 *
@@ -64,6 +68,12 @@ class Widget_Cook extends Widget_Content
 		}
 		
 		$favorites = Byends_Paragraph::arrayFlatten($favorites, 'cid');
+		
+		if (null !== $this->uid && !$this->isFavoritesId['isSelected']) {
+			$this->isFavoritesId['isSelected'] = true;
+			$this->isFavoritesId['data'] = $favorites;
+		}
+		
 		$favorites = implode(',', $favorites);
 		
 		$this->totals = $this->db->foundRows();

@@ -257,6 +257,7 @@ function installBYENDS( &$sql, &$errors ) {
 		'rewrite' => 0,
 		'domain' => $_SERVER["HTTP_HOST"],
 		'staticDomain' => $_SERVER["HTTP_HOST"],
+		'imageDomain' => $_SERVER["HTTP_HOST"],
 		'absolutePath' => str_replace(basename($_SERVER["REQUEST_URI"]), '', $_SERVER["REQUEST_URI"]),
 		'seed' => 'recipe',
 		'tag' => 'tag',

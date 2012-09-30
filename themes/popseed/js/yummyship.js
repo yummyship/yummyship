@@ -26,23 +26,21 @@ $(document).ready(function(){
 			return 'Unlike this recipe';
 		}
 	}).tipTip({
-		delay: 300,
+		delay: 150,
 		defaultPosition: 'left',
-		edgeOffset: 3,
-		fadeIn: 200,
+		fadeIn: 0,
 		fadeOut: 0,
-		attribute: 'title',
 	});
-	$(".recipe-big-cover").click(function(){
+	$('.recipe-big-cover').click(function(){
 		var b= $(this);
-		var a= b.children("img").height();
-		if (b.hasClass("slide")) {
-			b.animate({height:"396px"},300);
+		var a= b.children('img').height();
+		if (b.hasClass('slide')) {
+			b.animate({height:'396px'},300);
 		}
 		else {
-			b.animate({height:a+"px"},300);
+			b.animate({height:a+'px'},300);
 		}
-		b.toggleClass("slide");
+		b.toggleClass('slide');
 	});
 	
 	
@@ -90,7 +88,7 @@ $(document).ready(function(){
 		window.location.href = '?post&add&clear';
 	});
 	
-	//oAuth sign
+	//oAuth sign up
 	$('.oauth .fb').click(function(e) {
 		Yummyship.redirectOAuthSign(e, 'facebook');
 	});
@@ -102,6 +100,11 @@ $(document).ready(function(){
 		if (username == '') username = 'username';
 		$('#profile-url').html(username);
 	});
+	
+	//sign in
+	window.setInterval(function () {
+        Yummyship.displayLabel([$('#mail'), $('#fullname'), $('#username'), $('#password')]);
+    }, 100);
 	
 	
 	//zoom
@@ -140,24 +143,6 @@ $(document).ready(function(){
 		300);
 	});
 	
-	//navigation
-	$('#navigation a, #navigation span').tipTip({
-		delay: 300,
-		defaultPosition: 'bottom',
-		edgeOffset: 3,
-		fadeIn: 200,
-		fadeOut: 0,
-		attribute: 'title',
-	});
-	$('#navigation a, #navigation span').tipTip({
-		delay: 300,
-		defaultPosition: 'bottom',
-		edgeOffset: 3,
-		fadeIn: 200,
-		fadeOut: 0,
-		attribute: 'title',
-	});
-	
 	// seed
 	$('#link-url').click(function(){
 		this.select();
@@ -172,16 +157,31 @@ $(document).ready(function(){
 	if ($('#recipe-left-inner').is('div')) {
 		Yummyship.setStick($('#recipe-left-inner'));
 	}
-	$('.share img').tipTip({
-		delay: 300,
+	$('#navigation a, #navigation span').tipTip({
 		defaultPosition: 'top',
-		edgeOffset: 3,
-		fadeIn: 200,
+		delay: 150,
+		fadeIn: 0,
+		fadeOut: 0,
+	});
+	$('.share img').tipTip({
+		defaultPosition: 'top',
+		delay: 150,
+		fadeIn: 0,
 		fadeOut: 0,
 		attribute: 'alt',
 	});
-	$('#sidebar-inner .popular  a, #sidebar-inner .related  a, .latest dd a').tipTip({
-		defaultPosition: 'top'
+	$('.recipe-info-steps li img').tipTip({
+		defaultPosition: 'bottom',
+		delay: 150,
+		fadeIn: 0,
+		fadeOut: 0,
+		attribute: 'alt',
+	});
+	$('#sidebar-inner .popular  a, .related dd a').tipTip({
+		defaultPosition: 'top',
+		delay: 150,
+		fadeIn: 0,
+		fadeOut: 0
 	});
 });
 
@@ -245,6 +245,20 @@ var Yummyship = {
 				$stick.removeClass('fixed');
 			}
 		});
+	},
+	displayLabel : function (inputs) {
+		if(inputs){
+            for(var i = 0, len = inputs.length; i < len; i++){
+                var input = inputs[i];
+                var label = input.prev();
+                if (input.val() != '') {
+                    label.css('display') != 'none' && label.hide();
+                }
+                else {
+                    label.css('display') == 'none' && label.show();
+                }
+            }
+        }
 	},
 	initSeeds : function (item) {
 		$('#recipe-cards').waterfall({

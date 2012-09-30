@@ -8,17 +8,17 @@
  */
 class Widget_Content extends Widget_Abstract
 {
-	protected $cid = null;
-	protected $postModified = 0;
+	private $cid = null;
+	private $postModified = 0;
 	protected $isFavoritesId = array(
 		'isSelected' => false,
 		'data' => array()
 	);
 	
-	protected $coverHash = null;
-	protected $coverExt= null;
-	protected $coverSize = null;
-	protected $stepImageUrl = null;
+	private $coverHash = null;
+	private $coverExt= null;
+	private $coverSize = null;
+	private $stepImageUrl = null;
 	
 	public $type = array(
 		'post' => 'post',
@@ -667,10 +667,10 @@ class Widget_Content extends Widget_Abstract
 		$content['favorite'] = in_array($content['cid'], $this->isFavoritesId['data']);
 		
 		$cover = $content['coverHash'].'.'.$content['coverExt'];
-		$content['thumb'] = is_file(__BYENDS_ROOT_DIR__.__BYENDS_THUMBS_DIR__.$datePath.$cover) ? BYENDS_STATIC_URL
+		$content['thumb'] = is_file(__BYENDS_ROOT_DIR__.__BYENDS_THUMBS_DIR__.$datePath.$cover) ? BYENDS_IMAGE_URL
 							.__BYENDS_THUMBS_DIR__ . $datePath . $cover : BYENDS_NO_IMAGE_STATIC_URL;
 	
-		$content['cover'] = is_file(__BYENDS_ROOT_DIR__.__BYENDS_COVERS_DIR__.$datePath.$cover) ? BYENDS_STATIC_URL
+		$content['cover'] = is_file(__BYENDS_ROOT_DIR__.__BYENDS_COVERS_DIR__.$datePath.$cover) ? BYENDS_IMAGE_URL
 							.__BYENDS_COVERS_DIR__ . $datePath . $cover : BYENDS_NO_IMAGE_STATIC_URL;
 	}
 	

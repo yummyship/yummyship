@@ -16,10 +16,10 @@
 				<div class="widget share board-padding">
 					<dl class="clearfix">
 						<dt>Share</dt>
-						<dd share-name="pi"><img src="<?php echo BYENDS_THEMES_STATIC_URL; ?>images/pinterest_32.png" alt="Share On pinterest" /></dd>
-						<dd share-name="fb" class="margin-right-none"><img src="<?php echo BYENDS_THEMES_STATIC_URL; ?>images/facebook_32.png" alt="Share On facebook" /></dd>
-						<dd share-name="tw"><img src="<?php echo BYENDS_THEMES_STATIC_URL; ?>images/twitter_32.png" alt="Share On twitter" /></dd>
-						<dd share-name="gg" class="margin-right-none"><img src="<?php echo BYENDS_THEMES_STATIC_URL; ?>images/googleplus_32.png" alt="Share On googleplus" /></dd>
+						<dd share-name="pi"><img src="<?php echo BYENDS_THEMES_STATIC_URL; ?>images/pinterest_48.png" alt="Share On Pinterest" /></dd>
+						<dd share-name="gg" class="margin-right-none"><img src="<?php echo BYENDS_THEMES_STATIC_URL; ?>images/googleplus_48.png" alt="Share On Google Plus" /></dd>
+						<dd share-name="fb"><img src="<?php echo BYENDS_THEMES_STATIC_URL; ?>images/facebook_32.png" alt="Share On Facebook" /></dd>
+						<dd share-name="tw" class="margin-right-none"><img src="<?php echo BYENDS_THEMES_STATIC_URL; ?>images/twitter_48.png" alt="Share On Twitter" /></dd>
 						<?php if (false) {?>
 						<dd share-name="we"><img src="<?php echo BYENDS_THEMES_STATIC_URL; ?>images/weheartit.png" alt="Share On weheartit" /></dd>
 						<dd share-name="tu"><img src="<?php echo BYENDS_THEMES_STATIC_URL; ?>images/tumblr_32.png" alt="Share On tumblr" /></dd>

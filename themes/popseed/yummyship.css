@@ -236,7 +236,7 @@ h5, h6{font-size:1em}
 	background-position: 0 -1px;
 }
 .tools-likes {
-	background-position: 0 -300px;
+	background: url(images/icon-sprite.png) no-repeat 0 -96px;
 }
 .tools-settings {
 	background-position: 0 -181px;
@@ -326,6 +326,22 @@ textarea {
 
 .ipt-long {
 	width: 440px;
+}
+
+label {
+	position: absolute;
+	top: 10px;
+	left: 8px;
+	color: #999;
+	z-index: 103;
+	display: block;
+	font-size: 16px;
+	cursor: text;
+	-webkit-user-select: none;
+	-khtml-user-select: none;
+	-moz-user-select: none;
+	-o-user-select: none;
+	user-select: none;
 }
 
 button, html input[type="button"], input[type="reset"], input[type="submit"] {
@@ -772,6 +788,11 @@ ul.dropdown-menu li a:hover span.tools-settings {
 ul.dropdown-menu li a:hover span.tools-signout {
 	background-position: -140px -211px;
 }
+
+#nav-user .tools-likes {
+	vertical-align: bottom;
+}
+
 #user-dropdown {
 	height: 27px
 }
@@ -1180,6 +1201,7 @@ ul.dropdown-menu li.nohover:hover,ul.dropdown-menu li.nohover a:hover {
 .recipe-info-steps li img {
 	float: right;
 	display: block;
+	margin-top: 6px;
 }
 #recipe-content .brief ol {
 	list-style-type: decimal 
@@ -1460,25 +1482,12 @@ ul.dropdown-menu li.nohover:hover,ul.dropdown-menu li.nohover a:hover {
     color: #f0f0f0;
     background-color: #2260a9;
 }
-.logo-btn .logo-outer>span {
-    background: url(images/signin-sprite.png) no-repeat;
-}
-.logo-btn.fb .logo-outer>span {
-    background-position: 0 0;
-}
-.logo-btn.google .logo-outer>span {
-    background-position: 0 -24px;
-}
-.logo-btn.yahoo .logo-outer>span {
-    background-position: 0 -48px;
-}
-.logo-btn.aol .logo-outer>span {
-    background-position: 0 -72px;
-}
-.logo-btn.twitter .logo-outer>span {
-	background: url(images/twitter_24.png) no-repeat;
-}
 
+.logo-btn .logo-outer>img {
+	display: block;
+    width: 24px;
+	height: 24px;
+}
 
 /* comments */
 #comments{
@@ -1617,6 +1626,12 @@ ul.dropdown-menu li.nohover:hover,ul.dropdown-menu li.nohover a:hover {
 	height:32px;
 	margin: 2px 5px 5px 0;
 	cursor: pointer;
+}
+
+.share dd img {
+	display: block;
+	width: 32px;
+	height: 32px;
 }
 
 .widget .list-img dd {

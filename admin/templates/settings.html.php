@@ -43,6 +43,9 @@
 		<dt>StaticDomain:</dt>
 		<dd><input type="text" name="options[staticDomain]" class="long" value="<?php echo $options->staticDomain; ?>"/></dd>
 		
+		<dt>ImageDomain:</dt>
+		<dd><input type="text" name="options[imageDomain]" class="long" value="<?php echo $options->imageDomain; ?>"/></dd>
+		
 		<dt>AbsolutePath:</dt>
 		<dd><input type="text" name="options[absolutePath]" class="long" value="<?php echo $options->absolutePath; ?>"/></dd>
 		
